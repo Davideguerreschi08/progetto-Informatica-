@@ -1,0 +1,10 @@
+QUESTO FILE VERRA' USATO PER SCRIVERE 
+TUTTE LE COSE FATTE AD OGNI MODIFICA DEL FILE,
+PER RENDERE A TUTTI CHIARO COSA è STATO FATTO.
+
+BUONE NORME:
+-Scrivere i commenti sul progetto o sulle librerie, per poterci organizzare facilmente
+
+-A fine lavoro fare sempre il commit e push con la descrizione dell'aggiornamento
+
+(SE VI VIENE IN MENTE ALTRO AGGIUNGETE PURE)
