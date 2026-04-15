@@ -1,0 +1,1 @@
+// fwrite/fread stato partita
