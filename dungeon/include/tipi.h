@@ -44,7 +44,6 @@ typedef enum {
     DRAGO_SCHELETRO,
     DEMONE,
     LICH,
-    ALIEN,
     GARGOYLE
 } TipoMostro;
 
