@@ -53,7 +53,8 @@ void aggiungiXP(Eroe* e, int xp){
     e->esp+= xp; 
     printf("Complimenti hai guadagnato %d XP!\n", xp);
 
-    while(e->livello< NUM_LIVELLI-1 && e->esp>=soglieXP[e-livello+1]){
+    while(e->livello< NUM_LIVELLI-1 && e->esp>=livEXP[e->livello+1]){
+        
         e->livello++;
         e->hp_max+=10;
         e->attacco+=20;
