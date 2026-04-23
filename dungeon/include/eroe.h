@@ -1,41 +1,26 @@
 #ifndef EROE_H
 #define EROE_H
 
-#define MAX_INV 10
-#define MAX_NOME 50
+#include "tipi.h"
 
-typedef struct Oggetto{
-    char nome[MAX_NOME];
-    int valore;
-}Oggetto;
-
-typedef struct nodo{
-    Oggetto oggetto;
-    struct nodo* next;
-}nodo;
-
-typedef struct Eroe{
-    char nome[MAX_NOME];
-    int hp;
-    int hp_max;
-    int attacco;
-    int livello;
-    int esp;
-    nodo* inventario;
-}Eroe;
-
-//funzioni per inventario
-void push(Eroe* e, Oggetto itm);
-Oggetto pop(Eroe* e);
+// Funzioni per gestire l'inventario (pila)
+void push(Eroe* e, Oggetto* obj);
+Oggetto* pop(Eroe* e);
 void mostraInventario(Eroe* e);
 
-//movimento del personaggio
-void cambiaStanza(int* stanzaCorrente, int nuovaStanza);
+// Funzioni per movimento del personaggio
+void cambiaStanza(Stanza** stanzaCorrente, Stanza* nuovaStanza);
 
-//incremento esp e livelli
+// Funzioni per incremento exp e livelli
 void aggiungiXP(Eroe* e, int xp);
 
-//itmes (oggetti)
-void usaOgetto(Eroe* e);
+// Funzioni per uso oggetti
+void usaOggetto(Eroe* e);
+
+// Funzione per creare un nuovo eroe
+Eroe* crea_eroe(const char* nome);
+
+// Funzione per stampare lo stato dell'eroe
+void stampa_stato(Eroe* e);
 
 #endif;

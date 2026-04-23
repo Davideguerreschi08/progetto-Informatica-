@@ -20,10 +20,13 @@ Stanza* crea_stanza(int id, const char* desc) {
 
 // Aggiunge un oggetto alla lista della stanza
 void aggiungi_oggetto(Stanza* s, const char* nome) {
-    Oggetto* nuovo = (Oggetto*)malloc(sizeof(Oggetto));
-    strcpy(nuovo->nome, nome);
-    nuovo->prossimo = s->oggetti;
-    s->oggetti = nuovo;
+    Oggetto* obj = (Oggetto*)malloc(sizeof(Oggetto));
+    strcpy(obj->nome, nome);
+    
+    NodoOggetto* nodo = (NodoOggetto*)malloc(sizeof(NodoOggetto));
+    nodo->oggetto = obj;
+    nodo->next = s->oggetti;
+    s->oggetti = nodo;
 }
 
 Stanza* inizializza_mappa() {
