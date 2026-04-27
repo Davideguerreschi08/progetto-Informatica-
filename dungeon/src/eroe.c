@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "eroe.h"
+#include "../include/eroe.h"
 
 #define NUM_LIVELLI 5 //livelli di tutto il gioco
 const int livEXP[NUM_LIVELLI] = {0, 50, 120, 250, 500};

@@ -23,4 +23,4 @@ Eroe* crea_eroe(const char* nome);
 // Funzione per stampare lo stato dell'eroe
 void stampa_stato(Eroe* e);
 
-#endif;
+#endif

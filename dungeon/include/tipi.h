@@ -11,6 +11,8 @@
 #define MAX_INVENTARIO  8    // massimo 8 oggetti nell'inventario
 #define MAX_NOME        64   // lunghezza massima di un nome
 #define MAX_DESCRIZIONE 256  // lunghezza massima di una descrizione
+#define MAX_INPUT      128  // lunghezza massima input utente
+#define MAX_STANZE     16   // numero massimo di stanze in mappa
 
 // ─── ENUM ─────────────────────────────────────────────────────────────────────
 
@@ -77,19 +79,8 @@ typedef struct Oggetto {
     char        nome[MAX_NOME];
     TipoOggetto tipo;
     int         valore;
+    struct Oggetto *next;   // lista collegata di oggetti nella stanza
 } Oggetto;
-
-// ─── LISTA COLLEGATA OGGETTI ──────────────────────────────────────────────────
-
-// Ogni stanza ha una lista collegata di oggetti al suo interno.
-// Ogni nodo punta all'oggetto e al nodo successivo.
-// Quando "next" è NULL siamo all'ultimo nodo della lista.
-// Quando il giocatore raccoglie un oggetto, il nodo viene
-// rimosso dalla lista e l'oggetto viene messo nella sua pila.
-typedef struct NodoOggetto {
-    Oggetto            *oggetto;  // puntatore all'oggetto
-    struct NodoOggetto *next;     // puntatore al nodo successivo (NULL se ultimo)
-} NodoOggetto;
 
 // ─── STRUCT MOSTRO ────────────────────────────────────────────────────────────
 
@@ -100,10 +91,12 @@ typedef struct Mostro {
     char       nome[MAX_NOME];
     TipoMostro tipo;
     int        hp;
+    int        hp_max;
     int        attacco;
     int        difesa;
     int        xp_ricompensa;
     int        oro_ricompensa;
+    int        vivo;
 } Mostro;
 
 // ─── STRUCT STANZA ────────────────────────────────────────────────────────────
@@ -123,7 +116,9 @@ typedef struct Stanza {
     char          descrizione[MAX_DESCRIZIONE];
     bool          visitata;       // true se il giocatore ci è già entrato
     bool          bloccata;       // true se serve una chiave per entrare
-    NodoOggetto  *oggetti;        // testa della lista oggetti (NULL se vuota)
+    bool          nascosta;       // true se la stanza è nascosta
+    int           bloccata_est;   // id chiave necessaria per l'uscita est
+    Oggetto      *oggetti;        // testa della lista oggetti (NULL se vuota)
     Mostro       *mostro;         // NULL se non c'è nessun nemico
     struct Stanza *nord;          // puntatore alla stanza a nord (NULL se assente)
     struct Stanza *sud;

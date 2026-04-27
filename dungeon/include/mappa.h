@@ -3,19 +3,17 @@
 
 #include "tipi.h"
 
-// Crea una singola stanza
-Stanza* crea_stanza(int id, const char* desc);
+/* Costruisce il grafo delle stanze e restituisce il puntatore alla stanza iniziale */
+Stanza *costruisci_mappa(void);
 
-// Aggiunge un oggetto alla lista della stanza
-void aggiungi_oggetto(Stanza* s, Oggetto* obj);
+/* Libera tutta la memoria del grafo */
+void distruggi_mappa(Stanza **stanze, int n);
 
-// Inizializza l'intera mappa del dungeon
-Stanza* inizializza_mappa(void);
+/* Stampa la rappresentazione ASCII delle stanze visitate */
+void stampa_mappa(Stanza **stanze, int n, Stanza *corrente);
 
-// Stampa la mappa in ASCII art
-void stampa_mappa(Stanza* stanza_corrente);
+/* Array globale di puntatori alle stanze (per iterazione) */
+extern Stanza *tutte_stanze[MAX_STANZE];
+extern int     num_stanze;
 
-// Libera la memoria della mappa
-void libera_mappa(Stanza* ingresso);
-
-#endif
+#endif /* MAPPA_H */
