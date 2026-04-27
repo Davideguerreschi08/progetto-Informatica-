@@ -106,6 +106,10 @@ void stampa_stato(Eroe* e) {
     printf("Livello: %d | XP: %d\n", e->livello, e->xp);
     printf("Attacco: %d | Difesa: %d\n", e->attacco, e->difesa);
     printf("Oro: %d\n", e->oro);
-    printf("Stanza: %s\n", e->stanza_corrente ? e->stanza_corrente->nome : "Nessuna");
+    if (e->stanza_corrente != NULL) {
+        printf("Stanza: %s\n", e->stanza_corrente->nome);
+    } else {
+        printf("Stanza: Nessuna\n");
+    }
     printf("==================\n\n");
 }

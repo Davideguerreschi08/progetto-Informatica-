@@ -37,16 +37,12 @@ typedef enum {
 typedef enum {
     SCHELETRO,
     GOBLIN,
-    ORCO,
-    VAMPIRO,
     DRAGO,
     MAGO,
     BOSS,
-    RAGNO,
     DRAGO_SCHELETRO,
     DEMONE,
-    LICH,
-    GARGOYLE
+    LICH
 } TipoMostro;
 
 // I comandi che il giocatore può digitare.
