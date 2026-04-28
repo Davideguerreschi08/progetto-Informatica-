@@ -1,235 +1,286 @@
-#include "../include/mappa.h"
-#include "../include/salvataggio.h"
-#include "../include/tipi.h"
-#include "../include/eroe.h"
-#include "../include/combattimento.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../include/tipi.h"
+#include "../include/mappa.h"
+
+// ─── VARIABILI GLOBALI ────────────────────────────────────────────────────────
 
 Stanza *tutte_stanze[MAX_STANZE];
-int     num_stanze = 0;
+int num_stanze = 0;
 
-/* ── helper per allocare una stanza ── */
-static Stanza *nuova_stanza(int id, const char *nome, const char *desc)
-{
-    Stanza *s = calloc(1, sizeof(Stanza));
-    if (!s) { perror("calloc stanza"); exit(EXIT_FAILURE); }
+// ─── FUNZIONI AUSILIARIE ──────────────────────────────────────────────────────
+
+/* Crea una nueva stanza con parametri di default */
+static Stanza* crea_stanza(int id, const char *nome, const char *descrizione) {
+    Stanza *s = malloc(sizeof(Stanza));
+    if (!s) return NULL;
+    
     s->id = id;
-    strncpy(s->nome,        nome, MAX_NOME - 1);
-    strncpy(s->descrizione, desc, MAX_DESCRIZIONE - 1);
-    tutte_stanze[num_stanze++] = s;
+    strncpy(s->nome, nome, MAX_NOME - 1);
+    s->nome[MAX_NOME - 1] = '\0';
+    strncpy(s->descrizione, descrizione, MAX_DESCRIZIONE - 1);
+    s->descrizione[MAX_DESCRIZIONE - 1] = '\0';
+    
+    s->visitata = false;
+    s->bloccata = false;
+    s->nascosta = false;
+    s->bloccata_est = -1;
+    s->oggetti = NULL;
+    s->mostro = NULL;
+    s->nord = NULL;
+    s->sud = NULL;
+    s->est = NULL;
+    s->ovest = NULL;
+    
     return s;
 }
 
-/* ── helper per aggiungere un oggetto a una stanza ── */
-static void aggiungi_oggetto_stanza(Stanza *s, const char *nome,
-                                    TipoOggetto tipo, int valore)
-{
-    Oggetto *o = calloc(1, sizeof(Oggetto));
-    if (!o) { perror("calloc oggetto"); exit(EXIT_FAILURE); }
-    strncpy(o->nome, nome, MAX_NOME - 1);
-    o->tipo   = tipo;
-    o->valore = valore;
-    o->next   = s->oggetti;
-    s->oggetti = o;
-}
-
-/* ── helper per creare un mostro ── */
-static Mostro *nuovo_mostro(const char *nome, TipoMostro tipo,
-                             int hp, int att, int def,
-                             int xp, int oro)
-{
-    Mostro *m = calloc(1, sizeof(Mostro));
-    if (!m) { perror("calloc mostro"); exit(EXIT_FAILURE); }
+/* Crea un nuovo mostro */
+static Mostro* crea_mostro(const char *nome, TipoMostro tipo, int hp, 
+                           int attacco, int difesa, int xp, int oro) {
+    Mostro *m = malloc(sizeof(Mostro));
+    if (!m) return NULL;
+    
     strncpy(m->nome, nome, MAX_NOME - 1);
-    m->tipo          = tipo;
-    m->hp = m->hp_max = hp;
-    m->attacco        = att;
-    m->difesa         = def;
-    m->xp_ricompensa  = xp;
+    m->nome[MAX_NOME - 1] = '\0';
+    m->tipo = tipo;
+    m->hp = hp;
+    m->hp_max = hp;
+    m->attacco = attacco;
+    m->difesa = difesa;
+    m->xp_ricompensa = xp;
     m->oro_ricompensa = oro;
-    m->vivo           = 1;
+    m->vivo = 1;
+    
     return m;
 }
 
-/* ════════════════════════════════════════════════
-   Costruisce la mappa (grafo di 10 stanze)
-
-   Layout (coordinate logiche):
-
-      [0]Ingresso──E──[1]Corridoio──E──[2]Armeria
-                            |S                |S
-                       [3]Cripta        [4]Laboratorio
-                            |S                |S
-                       [5]Sala Troni   [6]Prigione──E──[7]Segreta
-                            |S
-                       [8]Altare──E──[9]BOSS
-   ════════════════════════════════════════════════ */
-Stanza *costruisci_mappa(void)
-{
-    num_stanze = 0;
-
-    Stanza *s0 = nuova_stanza(0,  "Ingresso del Dungeon",
-        "Ti trovi all'ingresso di un tetro dungeon. L'aria e' umida e puzza di muffa. "
-        "Una torcia consunta illumina le pareti di pietra.");
-
-    Stanza *s1 = nuova_stanza(1,  "Corridoio Oscuro",
-        "Un lungo corridoio buio. Le ombre si muovono sulle pareti. "
-        "Si sente il gocciolio dell'acqua in lontananza.");
-
-    Stanza *s2 = nuova_stanza(2,  "Armeria Abbandonata",
-        "Scaffali arrugginiti tappezzano le pareti. Qualche arma e' ancora utilizzabile. "
-        "L'odore di metallo arrugginito e' pungente.");
-
-    Stanza *s3 = nuova_stanza(3,  "Cripta degli Antenati",
-        "Sarcofagi di pietra si allineano lungo i muri. Iscrizioni in una lingua antica "
-        "coprono ogni superficie. Uno scheletro cammina tra le tombe.");
-
-    Stanza *s4 = nuova_stanza(4,  "Laboratorio del Mago",
-        "Libri, alambicchi e ingredienti misteriosi riempiono ogni angolo. "
-        "Un goblin sta frugando tra gli scaffali.");
-
-    Stanza *s5 = nuova_stanza(5,  "Sala del Trono Dimenticata",
-        "Un enorme trono di ossidiana domina la stanza. Tappeti rossi ormai sbiaditi "
-        "coprono il pavimento. La porta nord e' sigillata con una chiave speciale.");
-
-    Stanza *s6 = nuova_stanza(6,  "Prigione",
-        "Celle arrugginite si estendono su entrambi i lati. Catene e ossa raccontano "
-        "storie di prigionieri dimenticati.");
-
-    Stanza *s7 = nuova_stanza(7,  "Camera Segreta",
-        "Una stanza nascosta, rivelata solo dalla luce di una torcia. "
-        "Un tesoro dimenticato giace nell'angolo. E' sorvegliato da un drago.");
-    s7->nascosta = 1;   /* richiede torcia per essere visitata normalmente */
-
-    Stanza *s8 = nuova_stanza(8,  "Altare del Sacrificio",
-        "Un altare macchiato di sangue antico campeggia al centro. "
-        "Rune luminose indicano che qualcosa di potente e' avvenuto qui.");
-
-    Stanza *s9 = nuova_stanza(9,  "Sala del Boss – Mortarion",
-        "Un'enorme stanza circolare. Al centro, avvolto in un manto di oscurita', "
-        "siede MORTARION, il Signore delle Tenebre. I suoi occhi brillano di odio eterno.");
-
-    /* ── Connessioni (grafo bidirezionale) ── */
-    /* s0 ──E── s1 */
-    s0->est = s1;  s1->ovest = s0;
-    /* s1 ──E── s2 */
-    s1->est = s2;  s2->ovest = s1;
-    /* s1 ──S── s3 */
-    s1->sud = s3;  s3->nord = s1;
-    /* s2 ──S── s4 */
-    s2->sud = s4;  s4->nord = s2;
-    /* s3 ──S── s5 */
-    s3->sud = s5;  s5->nord = s3;
-    /* s4 ──S── s6 */
-    s4->sud = s6;  s6->nord = s4;
-    /* s6 ──E── s7 (nascosta) */
-    s6->est = s7;  s7->ovest = s6;
-    /* s5 ──S── s8 */
-    s5->sud = s8;  s8->nord = s5;
-    /* s8 ──E── s9 (bloccata: richiede Chiave del Boss, valore=99) */
-    s8->est = s9;  s9->ovest = s8;
-    s8->bloccata_est = 99;   /* id chiave */
-
-    /* ── Oggetti nelle stanze ── */
-    aggiungi_oggetto_stanza(s0, "Torcia",          TORCIA,   0);
-    aggiungi_oggetto_stanza(s0, "Pozione Minore",  POZIONE, 20);
-    aggiungi_oggetto_stanza(s2, "Spada Arrugginita", ARMA,   5);
-    aggiungi_oggetto_stanza(s2, "Scudo di Legno",  ARMATURA, 3);
-    aggiungi_oggetto_stanza(s4, "Pozione Maggiore",POZIONE, 50);
-    aggiungi_oggetto_stanza(s4, "Chiave di Ferro", CHIAVE,  99);  /* apre s8→s9 */
-    aggiungi_oggetto_stanza(s6, "Pozione Minore",  POZIONE, 20);
-    aggiungi_oggetto_stanza(s7, "Spada Fiammante", ARMA,   15);
-    aggiungi_oggetto_stanza(s7, "Armatura Nera",   ARMATURA, 8);
-    aggiungi_oggetto_stanza(s8, "Elixir Supremo",  POZIONE, 999);
-
-    /* ── Mostri ── */
-    s3->mostro = nuovo_mostro("Scheletro Guerriero", SCHELETRO, 30, 8,  2, 40,  15);
-    s4->mostro = nuovo_mostro("Goblin Maledetto",    GOBLIN,    20, 6,  1, 25,  10);
-    s7->mostro = nuovo_mostro("Drago Giovane",       DRAGO,     80, 18, 5, 120, 60);
-    s9->mostro = nuovo_mostro("Mortarion",           BOSS,     200, 25, 8, 500, 200);
-
-    return s0;
+/* Crea un nuovo oggetto */
+static Oggetto* crea_oggetto(const char *nome, TipoOggetto tipo, int valore) {
+    Oggetto *o = malloc(sizeof(Oggetto));
+    if (!o) return NULL;
+    
+    strncpy(o->nome, nome, MAX_NOME - 1);
+    o->nome[MAX_NOME - 1] = '\0';
+    o->tipo = tipo;
+    o->valore = valore;
+    o->next = NULL;
+    
+    return o;
 }
 
-void distruggi_mappa(Stanza **stanze, int n)
-{
+/* Aggiunge un oggetto alla stanza */
+static void aggiungi_oggetto_stanza(Stanza *stanza, Oggetto *obj) {
+    if (!stanza || !obj) return;
+    
+    obj->next = stanza->oggetti;
+    stanza->oggetti = obj;
+}
+
+// ─── FUNZIONI PRINCIPALI ──────────────────────────────────────────────────────
+
+/* Costruisce il dungeon: crea le stanze e le collega in un grafo */
+Stanza *costruisci_mappa(void) {
+    // Creiamo le 8 stanze del dungeon
+    Stanza *entrata = crea_stanza(0, "ENTRATA DEL DUNGEON",
+        "Sei di fronte a un'enorme porta di pietra. Dentro soffia un vento freddo.\n"
+        "Puoi andare a NORD (corridoio principale) o a EST (corridoio laterale).");
+    
+    Stanza *corridoio_principale = crea_stanza(1, "CORRIDOIO PRINCIPALE",
+        "Un lungo corridoio fiancheggiato da torce blu. Senti strani rumori.\n"
+        "Puoi andare a SUD (entrata), NORD (camera del tesoro) o OVEST (camera nascosta).");
+    
+    Stanza *camera_tesoro = crea_stanza(2, "CAMERA DEL TESORO",
+        "Una grande sala con colonne di marmo. Qui riposa il BOSS finale!\n"
+        "Puoi andare a SUD (corridoio principale).");
+    
+    Stanza *corridoio_laterale = crea_stanza(3, "CORRIDOIO LATERALE",
+        "Un corridoio stretto e umido. Vedi tracce di artigli sulle muri.\n"
+        "Puoi andare a OVEST (entrata) o a NORD (camera dei goblin).");
+    
+    Stanza *camera_goblin = crea_stanza(4, "CAMERA DEI GOBLIN",
+        "Una sala puzzolente piena di ossa e rifiuti. Demoni di fuoco sorvegliano il tesoro.\n"
+        "Puoi andare a SUD (corridoio laterale).");
+    
+    Stanza *camera_scheletri = crea_stanza(5, "CAMERA DEGLI SCHELETRI",
+        "Una cripta con bare di pietra. Gli scheletri camminano in cerchio.\n"
+        "Puoi andare a NORD (torre del mago) o a SUD (corridoio principale).");
+    
+    Stanza *torre_mago = crea_stanza(6, "TORRE DEL MAGO",
+        "Una stanza con scaffali di libri e pozioni. L'aria puzza di magia.\n"
+        "Puoi andare a SUD (camera degli scheletri).");
+    
+    Stanza *camera_nascosta = crea_stanza(7, "CAMERA NASCOSTA",
+        "Una stanza segreta scoperta! Qui riposano i migliori tesori e una chiave dorata.\n"
+        "Puoi andare a EST (corridoio principale).");
+    
+    // Salviamo i puntatori nell'array globale
+    tutte_stanze[0] = entrata;
+    tutte_stanze[1] = corridoio_principale;
+    tutte_stanze[2] = camera_tesoro;
+    tutte_stanze[3] = corridoio_laterale;
+    tutte_stanze[4] = camera_goblin;
+    tutte_stanze[5] = camera_scheletri;
+    tutte_stanze[6] = torre_mago;
+    tutte_stanze[7] = camera_nascosta;
+    num_stanze = 8;
+    
+    // ─── COLLEGAMENTO DELLE STANZE (il grafo) ───────────────────────────────
+    
+    // ENTRATA (0)
+    entrata->nord = corridoio_principale;
+    entrata->est = corridoio_laterale;
+    
+    // CORRIDOIO PRINCIPALE (1)
+    corridoio_principale->sud = entrata;
+    corridoio_principale->nord = camera_tesoro;
+    corridoio_principale->ovest = camera_nascosta;
+    
+    // CAMERA DEL TESORO (2) - BOSS
+    camera_tesoro->sud = corridoio_principale;
+    
+    // CORRIDOIO LATERALE (3)
+    corridoio_laterale->ovest = entrata;
+    corridoio_laterale->nord = camera_goblin;
+    
+    // CAMERA DEI GOBLIN (4)
+    camera_goblin->sud = corridoio_laterale;
+    
+    // CAMERA DEGLI SCHELETRI (5)
+    camera_scheletri->nord = torre_mago;
+    camera_scheletri->sud = corridoio_principale;
+    
+    // TORRE DEL MAGO (6)
+    torre_mago->sud = camera_scheletri;
+    
+    // CAMERA NASCOSTA (7)
+    camera_nascosta->est = corridoio_principale;
+    
+    // ─── AGGIUNTA NEMICI ─────────────────────────────────────────────────────
+    
+    // 2 Goblin in camera_goblin
+    camera_goblin->mostro = crea_mostro("Goblin Guerriero", GOBLIN, 20, 8, 3, 50, 30);
+    
+    // 1 Scheletro in camera_scheletri
+    camera_scheletri->mostro = crea_mostro("Scheletro Antico", SCHELETRO, 25, 7, 4, 60, 40);
+    
+    // 1 Mago in torre_mago
+    torre_mago->mostro = crea_mostro("Mago Oscuro", MAGO, 30, 12, 5, 100, 60);
+    
+    // 1 Drago-Scheletro in corridoio_principale
+    corridoio_principale->mostro = crea_mostro("Drago-Scheletro", DRAGO_SCHELETRO, 40, 14, 7, 150, 100);
+    
+    // 1 BOSS in camera_tesoro
+    camera_tesoro->mostro = crea_mostro("LICH SUPREMO", BOSS, 80, 18, 10, 500, 200);
+    
+    // ─── AGGIUNTA OGGETTI ────────────────────────────────────────────────────
+    
+    // ENTRATA: pozione e torcia
+    aggiungi_oggetto_stanza(entrata, crea_oggetto("Pozione di Guarigione", POZIONE, 20));
+    aggiungi_oggetto_stanza(entrata, crea_oggetto("Torcia", TORCIA, 1));
+    
+    // CORRIDOIO PRINCIPALE: armatura scura
+    aggiungi_oggetto_stanza(corridoio_principale, crea_oggetto("Armatura di Ferro", ARMATURA, 5));
+    
+    // CAMERA DEL TESORO: spada leggendaria e amuleto
+    aggiungi_oggetto_stanza(camera_tesoro, crea_oggetto("Spada Leggendaria", ARMA, 20));
+    aggiungi_oggetto_stanza(camera_tesoro, crea_oggetto("Amuleto della Protezione", AMULETO, 10));
+    
+    // CORRIDOIO LATERALE: pozione veleno
+    aggiungi_oggetto_stanza(corridoio_laterale, crea_oggetto("Pozione di Veleno", POZIONE_VELENO, 15));
+    
+    // CAMERA DEI GOBLIN: bomba e chiave
+    aggiungi_oggetto_stanza(camera_goblin, crea_oggetto("Bomba a Mano", BOMBA, 30));
+    aggiungi_oggetto_stanza(camera_goblin, crea_oggetto("Chiave di Ferro", CHIAVE, 1));
+    
+    // CAMERA DEGLI SCHELETRI: pozione alta guarigione
+    aggiungi_oggetto_stanza(camera_scheletri, crea_oggetto("Pozione di Grande Guarigione", POZIONE, 40));
+    
+    // TORRE DEL MAGO: armatura magica
+    aggiungi_oggetto_stanza(torre_mago, crea_oggetto("Armatura Magica", ARMATURA, 8));
+    aggiungi_oggetto_stanza(torre_mago, crea_oggetto("Libro di Magia", AMULETO, 5));
+    
+    // CAMERA NASCOSTA: il tesoro finale!
+    aggiungi_oggetto_stanza(camera_nascosta, crea_oggetto("Chiave Dorata", CHIAVE, 5));
+    aggiungi_oggetto_stanza(camera_nascosta, crea_oggetto("Corona del Re", AMULETO, 15));
+    aggiungi_oggetto_stanza(camera_nascosta, crea_oggetto("Spada di Platino", ARMA, 25));
+    
+    return entrata;  // Ritorna la stanza iniziale
+}
+
+/* Libera tutta la memoria allocata per il dungeon */
+void distruggi_mappa(Stanza **stanze, int n) {
+    if (!stanze) return;
+    
     for (int i = 0; i < n; i++) {
         if (!stanze[i]) continue;
-        /* libera lista oggetti */
-        Oggetto *o = stanze[i]->oggetti;
-        while (o) {
-            Oggetto *tmp = o->next;
-            free(o);
-            o = tmp;
+        
+        // Libera tutti gli oggetti della stanza
+        Oggetto *obj = stanze[i]->oggetti;
+        while (obj) {
+            Oggetto *temp = obj;
+            obj = obj->next;
+            free(temp);
         }
-        free(stanze[i]->mostro);
+        
+        // Libera il mostro (se c'è)
+        if (stanze[i]->mostro) {
+            free(stanze[i]->mostro);
+        }
+        
+        // Libera la stanza stessa
         free(stanze[i]);
-        stanze[i] = NULL;
     }
 }
 
-/* ════ Mappa ASCII ════
-   Rappresentazione a griglia 5×3 (id → posizione hardcoded) */
-/* (id stanza, riga, colonna) nel display */
-static const int pos[][3] = {
-    {0, 0, 0},
-    {1, 0, 2},
-    {2, 0, 4},
-    {3, 1, 2},
-    {4, 1, 4},
-    {5, 2, 2},
-    {6, 2, 4},
-    {7, 2, 6},   /* fuori griglia normale, mostrata se visitata */
-    {8, 3, 2},
-    {9, 3, 4},
-    {-1,-1,-1}
-};
-
-void stampa_mappa(Stanza **stanze, int n, Stanza *corrente)
-{
-    /* matrice di caratteri 7 righe × 15 colonne */
-    #define MR 8
-    #define MC 16
-    char grid[MR][MC];
-    memset(grid, ' ', sizeof(grid));
-    for (int r = 0; r < MR; r++) grid[r][MC-1] = '\0';
-
-    for (int i = 0; pos[i][0] != -1; i++) {
-        int id = pos[i][0];
-        int r  = pos[i][1];
-        int c  = pos[i][2];
-        if (id >= n || !stanze[id]) continue;
-        if (!stanze[id]->visitata)  continue;
-        if (r >= MR || c >= MC-2)   continue;
-        if (stanze[id] == corrente)
-            grid[r][c] = '@';
-        else
-            grid[r][c] = '#';
-        /* connessioni est */
-        if (c+2 < MC-1 && stanze[id]->est) {
-            int eid = stanze[id]->est->id;
-            if (eid < n && stanze[eid] && stanze[eid]->visitata)
-                grid[r][c+1] = '-';
-        }
-        /* connessioni sud */
-        if (r+1 < MR && stanze[id]->sud) {
-            int sid = stanze[id]->sud->id;
-            if (sid < n && stanze[sid] && stanze[sid]->visitata)
-                grid[r+1][c] = '|';
+/* Stampa una mappa ASCII visualizzando le stanze visitate */
+void stampa_mappa(Stanza **stanze, int n, Stanza *corrente) {
+    if (!stanze || n <= 0) {
+        printf("Mappa non disponibile.\n");
+        return;
+    }
+    
+    printf("\n╔════════════════════════════════════════════════════════════╗\n");
+    printf("║              MAPPA DEL DUNGEON ESPLORATO                   ║\n");
+    printf("╚════════════════════════════════════════════════════════════╝\n\n");
+    
+    // Layout ASCII del dungeon
+    printf("                      [TORRE DEL MAGO (6)]\n");
+    printf("                             |\n");
+    printf("  [CAMERA NASCOSTA]---[CAMERA SCHELETRI (5)]\n");
+    printf("        (7)                |\n");
+    printf("         |                 |\n");
+    printf("[CORRIDOIO PRINCIPALE (1)]-|\n");
+    printf("     |           |\n");
+    printf("     |       [CAMERA TESORO (2)]\n");
+    printf("     |       [BOSS LICH]\n");
+    printf(" [ENTRATA (0)]\n");
+    printf("     |\n");
+    printf("[CORRIDOIO LATERALE (3)]\n");
+    printf("     |\n");
+    printf("[CAMERA DEI GOBLIN (4)]\n\n");
+    
+    // Legenda con stanze visitate
+    printf("Legenda:\n");
+    printf("  ✓ = visitata\n");
+    printf("  → = stanza attuale\n");
+    printf("  ✗ = non visitata\n\n");
+    
+    for (int i = 0; i < n; i++) {
+        Stanza *s = stanze[i];
+        if (!s) continue;
+        
+        printf("[%d] %s ", s->id, s->nome);
+        
+        if (s == corrente) {
+            printf(" → ATTUALE\n");
+        } else if (s->visitata) {
+            printf(" ✓ visitata\n");
+        } else {
+            printf(" ✗ non visitata\n");
         }
     }
-
-    printf("\n╔═══════════════════╗\n");
-    printf("║  MAPPA DUNGEON     ║\n");
-    printf("╠═══════════════════╣\n");
-    for (int r = 0; r < MR; r++) {
-        printf("║  ");
-        for (int c = 0; c < 13; c++)
-            putchar(grid[r][c]);
-        printf("  ║\n");
-    }
-    printf("╚═══════════════════╝\n");
-    printf(" @ = tu   # = stanza visitata\n\n");
+    
+    printf("\n");
 }
