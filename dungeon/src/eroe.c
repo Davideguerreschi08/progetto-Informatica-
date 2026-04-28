@@ -24,14 +24,14 @@ Eroe* crea_eroe(const char* nome) {
 }
 
 // PUSH (stack) - aggiunge oggetto in cima alla pila
-void push(Eroe* e, Oggetto* obj) {
+void push(Eroe* e, Oggetto* ogg) {
     if (e->inventario.top >= MAX_INVENTARIO - 1) {
         printf("Inventario pieno!\n");
         return;
     }
     e->inventario.top++;
-    e->inventario.oggetti[e->inventario.top] = obj;
-    printf("Hai raccolto: %s\n", obj->nome);
+    e->inventario.oggetti[e->inventario.top] = ogg;
+    printf("Hai raccolto: %s\n", ogg->nome);
 }
 
 // POP - toglie oggetto dalla cima della pila
@@ -40,9 +40,9 @@ Oggetto* pop(Eroe* e) {
         printf("Inventario vuoto!\n");
         return NULL;
     }
-    Oggetto* obj = e->inventario.oggetti[e->inventario.top];
+    Oggetto* ogg = e->inventario.oggetti[e->inventario.top];
     e->inventario.top--;
-    return obj;
+    return ogg;
 }
 
 // Stampa il contenuto dell'inventario
@@ -86,12 +86,12 @@ void aggiungiXP(Eroe* e, int xp) {
 
 // Usa un oggetto dall'inventario
 void usaOggetto(Eroe* e) {
-    Oggetto* obj = pop(e);
-    if (obj == NULL) {
+    Oggetto* ogg = pop(e);
+    if (ogg == NULL) {
         return;
     }
-    printf("Hai usato: %s\n", obj->nome);
-    e->hp += obj->valore;
+    printf("Hai usato: %s\n", ogg->nome);
+    e->hp += ogg->valore;
     if (e->hp > e->hp_max) {
         e->hp = e->hp_max;
     }
