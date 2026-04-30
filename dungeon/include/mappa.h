@@ -13,7 +13,10 @@ void distruggi_mappa(Stanza **stanze, int n);
 void stampa_mappa(Stanza **stanze, int n, Stanza *corrente);
 
 /* Array globale di puntatori alle stanze (per iterazione) */
+/* Puntatori a tutte le stanze create nella mappa.
+   Viene usato per poter scorrere facilmente tutte le stanze. */
 extern Stanza *tutte_stanze[MAX_STANZE];
+/* Numero effettivo di stanze valide presenti in tutte_stanze. */
 extern int     num_stanze;
 
 #endif /* MAPPA_H */

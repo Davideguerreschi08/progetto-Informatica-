@@ -47,8 +47,7 @@ int salva_partita(Eroe* eroe, Stanza* stanza_corrente, const char* filename)
     return 0;
 }
 
-int carica_partita(Eroe* eroe, Stanza** stanza_corrente, const char* filename)
-{
+int carica_partita(Eroe* eroe, Stanza** stanza_corrente, const char* filename){
     if (!eroe || !stanza_corrente || !filename || filename[0] == '\0')
         return -1;
 
@@ -75,15 +74,15 @@ int carica_partita(Eroe* eroe, Stanza** stanza_corrente, const char* filename)
     eroe->livello = salvataggio.livello;
     eroe->oro = salvataggio.oro;
 
-    if (salvataggio.stanza_id >= 0 && salvataggio.stanza_id < num_stanze)
+    if (salvataggio.stanza_id >= 0 && salvataggio.stanza_id < num_stanze){
         *stanza_corrente = tutte_stanze[salvataggio.stanza_id];
-    else
+    }else{
         *stanza_corrente = NULL;
+    }
 
     return 0;
 }
 
-void menu_salvataggio(void)
-{
+void menu_salvataggio(void){
     printf("Comandi disponibili: salva <file> | carica <file>\n");
 }
