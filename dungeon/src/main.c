@@ -24,6 +24,11 @@ int main(void)
     char input[MAX_INPUT];
     char argomento[MAX_NOME];
 
+    printf("\n╔════════════════════════════════════════════════════════╗\n");
+    printf("║     BENVENUTO NEL DUNGEON - AVVENTURA INIZIA       ║\n");
+    printf("╚════════════════════════════════════════════════════════╝\n");
+    stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente);
+
     while (eroe->hp > 0 && !partita_vinta) {
         stampa_stato(eroe);
         printf("> ");
@@ -102,6 +107,8 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         if (destinazione) {
             cambiaStanza(&eroe->stanza_corrente, destinazione);
             destinazione->visitata = true;
+            printf("\n");
+            stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente);
         } else {
             printf("Non puoi andare in quella direzione. Usa nord/sud/est/ovest.\n");
         }

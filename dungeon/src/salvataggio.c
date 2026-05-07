@@ -76,13 +76,9 @@ int carica_partita(Eroe* eroe, Stanza** stanza_corrente, const char* filename){
 
     if (salvataggio.stanza_id >= 0 && salvataggio.stanza_id < num_stanze){
         *stanza_corrente = tutte_stanze[salvataggio.stanza_id];
-    }else{
+    } else {
         *stanza_corrente = NULL;
     }
 
     return 0;
-}
-
-void menu_salvataggio(void){
-    printf("Comandi disponibili: salva <file> | carica <file>\n");
 }
