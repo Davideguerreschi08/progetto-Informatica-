@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "../include/tipi.h"
 #include "../include/eroe.h"
 #include "../include/mappa.h"
@@ -25,18 +26,26 @@ int main(void)
     char argomento[MAX_NOME];
 
     printf("\n╔════════════════════════════════════════════════════════╗\n");
-    printf("║     BENVENUTO NEL DUNGEON - AVVENTURA INIZIA       ║\n");
-    printf("╚════════════════════════════════════════════════════════╝\n");
-    stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente);
+    printf("║     BENVENUTO NEL DUNGEON - AVVENTURA INIZIA             ║\n");
+    printf("╚════════════════════════════════════════════════════════╝\n\n");
+    printf("🎮 Comandi di movimento:\n");
+    printf("  W     - Nord\n");
+    printf("  S     - Sud\n");
+    printf("  A     - Ovest\n");
+    printf("  D     - Est\n\n");
+    printf("🎯 Altri comandi: vai, guarda, prendi, usa, attacca, inventario, mappa, salva, carica\n\n");
+    stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
 
     while (eroe->hp > 0 && !partita_vinta) {
-        stampa_stato(eroe);
         printf("> ");
         if (!fgets(input, MAX_INPUT, stdin))
             break;
 
         TipoComando cmd = parse_comando(input, argomento);
         esegui_comando(cmd, argomento, eroe, &partita_vinta);
+        
+        // Stampa la mappa dopo ogni comando
+        stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
     }
 
     printf("\nPartita terminata.\n");
@@ -50,6 +59,27 @@ static TipoComando parse_comando(const char *input, char *argomento)
     char comando[32] = {0};
     argomento[0] = '\0';
     sscanf(input, "%31s %63[^\n]", comando, argomento);
+
+    // Supporto WASD per movimento
+    if (strlen(comando) == 1) {
+        char c = tolower(comando[0]);
+        if (c == 'w') {
+            strcpy(argomento, "nord");
+            return CMD_VAI;
+        }
+        if (c == 's') {
+            strcpy(argomento, "sud");
+            return CMD_VAI;
+        }
+        if (c == 'a') {
+            strcpy(argomento, "ovest");
+            return CMD_VAI;
+        }
+        if (c == 'd') {
+            strcpy(argomento, "est");
+            return CMD_VAI;
+        }
+    }
 
     if (strcmp(comando, "vai") == 0) return CMD_VAI;
     if (strcmp(comando, "guarda") == 0) return CMD_GUARDA;
@@ -107,10 +137,8 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         if (destinazione) {
             cambiaStanza(&eroe->stanza_corrente, destinazione);
             destinazione->visitata = true;
-            printf("\n");
-            stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente);
         } else {
-            printf("Non puoi andare in quella direzione. Usa nord/sud/est/ovest.\n");
+            printf("⚠️ Muro! Non puoi andare in quella direzione.\n");
         }
         break;
     }
@@ -144,7 +172,7 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         mostraInventario(eroe);
         break;
     case CMD_MAPPA:
-        stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente);
+        printf("La mappa è già visibile qui sopra!\n");
         break;
     case CMD_SALVA: {
         const char *file = argomento[0] ? argomento : "partita.sav";

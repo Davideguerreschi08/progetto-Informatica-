@@ -10,7 +10,7 @@ Stanza *costruisci_mappa(void);
 void distruggi_mappa(Stanza **stanze, int n);
 
 /* Stampa la rappresentazione ASCII delle stanze visitate */
-void stampa_mappa(Stanza **stanze, int n, Stanza *corrente);
+void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe);
 
 /* Array globale di puntatori alle stanze (per iterazione) */
 /* Puntatori a tutte le stanze create nella mappa.

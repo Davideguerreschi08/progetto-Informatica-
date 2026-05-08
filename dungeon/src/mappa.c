@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/mappa.h"
+#include "../include/eroe.h"
 
 Stanza *tutte_stanze[MAX_STANZE];
 int num_stanze = 0;
@@ -164,7 +165,7 @@ void distruggi_mappa(Stanza **stanze, int n)
     num_stanze = 0;
 }
 
-void stampa_mappa(Stanza **stanze, int n, Stanza *corrente)
+void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe)
 {
     (void)stanze;
     (void)n;
@@ -237,23 +238,56 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente)
     }
 
     printf("\n=== MAPPA DEL DUNGEON ===\n");
+    
+    // Array di stringhe della legenda
+    const char *legenda[] = {
+        "LEGENDA:",
+        "  # = Muro",
+        "  S = Spawn/Inizio",
+        "  & = Giocatore",
+        "  M = Mostro",
+        "  O = Oggetto",
+        "  B = Baule",
+        "  T = Trappola",
+        "  P = Pozione",
+        "  C = Chiave"
+    };
+    int num_legenda = sizeof(legenda) / sizeof(legenda[0]);
+
+    // Stampa mappa, legenda e stato affianco
     for (int r = 0; r < MAPPA_RIGHE; r++) {
+        // Stampa riga della mappa
         for (int c = 0; c < MAPPA_COLONNE; c++) {
             putchar(mappa_dinamica[r][c]);
+        }
+        
+        // Stampa riga della legenda o dello stato affianco
+        if (r < num_legenda) {
+            printf("   %s", legenda[r]);
+        } else if (eroe && r == num_legenda + 1) {
+            printf("   === STATO EROE ===");
+        } else if (eroe) {
+            int riga_stato = r - num_legenda - 2;
+            if (riga_stato == 0) {
+                printf("   Nome: %s", eroe->nome);
+            } else if (riga_stato == 1) {
+                printf("   HP: %d/%d", eroe->hp, eroe->hp_max);
+            } else if (riga_stato == 2) {
+                printf("   Livello: %d | XP: %d", eroe->livello, eroe->xp);
+            } else if (riga_stato == 3) {
+                printf("   Attacco: %d | Difesa: %d", eroe->attacco, eroe->difesa);
+            } else if (riga_stato == 4) {
+                printf("   Oro: %d", eroe->oro);
+            } else if (riga_stato == 5) {
+                if (eroe->stanza_corrente) {
+                    printf("   Stanza: %s", eroe->stanza_corrente->nome);
+                } else {
+                    printf("   Stanza: Nessuna");
+                }
+            }
         }
         putchar('\n');
     }
 
     printf("\nStanza attuale: %s (ID: %d)\n\n", corrente ? corrente->nome : "Sconosciuta", corrente ? corrente->id : -1);
-    puts("Legenda:");
-    puts("  # = Muro");
-    puts("  S = Spawn/Inizio");
-    puts("  & = Giocatore (stanza corrente)");
-    puts("  M = Mostro");
-    puts("  O = Oggetto");
-    puts("  B = Baule");
-    puts("  T = Trappola");
-    puts("  P = Pozione");
-    puts("  C = Chiave");
-    puts("");
 }
