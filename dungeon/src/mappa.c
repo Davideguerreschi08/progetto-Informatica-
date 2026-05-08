@@ -168,14 +168,31 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente)
 {
     (void)stanze;
     (void)n;
-    (void)corrente;
 
     enum { MAPPA_RIGHE = 24, MAPPA_COLONNE = 62 };
 
-    static const char MAPPA_TERMINALE[MAPPA_RIGHE][MAPPA_COLONNE + 1] = {
+    // Mappatura stanze → coordinate sulla mappa (riga, colonna)
+    typedef struct {
+        int stanza_id;
+        int riga;
+        int colonna;
+    } PosizioneMappa;
+
+    static const PosizioneMappa mappa_stanze[] = {
+        {0, 2, 1},      // Sala Iniziale (S)
+        {1, 2, 11},     // Corridoio Est (O)
+        {2, 2, 17},     // Sala dei Tesori (&)
+        {3, 2, 27},     // Sala del Mostro (M)
+        {4, 10, 1},     // Antica Biblioteca (B)
+        {5, 10, 17},    // Pozzo della Trappola (C)
+        {6, 14, 17},    // Sala delle Pozioni (P)
+        {7, 21, 45},    // Sala del Boss (M)
+    };
+
+    static const char MAPPA_BASE[MAPPA_RIGHE][MAPPA_COLONNE + 1] = {
         "I------------------------------------------------------------I",
         "I#####################################                       I",
-        "I                                    #                       I",
+        "IS/        O               M         #                       I",
         "I###############   ###############   #                       I",
         "I              #   #             #   ####################    I",
         "I              #   #             #                      #    I",
@@ -183,37 +200,11 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente)
         "I              #   #                                #   #    I",
         "I              #   #                                #   #    I",
         "I###############   ##########                       #   #    I",
-        "I#                          #                       #   #    I",
+        "I# B  T     T          M  C #                       #   #    I",
         "I###############   ##########                       #   #####I",
         "I              #   #                                #        I",
         "I              #   #                                #   #####I",
-        "I              #   #             ##########         #   #    I",
-        "I              #   #             #        #         #   #    I",
-        "I              #   #             #  #######         #   #    I",
-        "I              #   #             #   #              #   #    I",
-        "I   ############   #             #   #              #   #    I",
-        "I   #              #             #   #              #   #    I",
-        "I   #   ##########################   ################   #    I",
-        "I   #                                                   #    I",
-        "I   #####################################################    I",
-        "I------------------------------------------------------------I"
-    };
-    static const char MAPPA_BACKEND[MAPPA_RIGHE][MAPPA_COLONNE + 1] = {
-        "I------------------------------------------------------------I",
-        "I#####################################                       I",
-        "IS/&       O               M         #                       I",
-        "I###############   ###############   #                       I",
-        "I              #   #             #   ####################    I",
-        "I              #   #             #        T     P       #    I",
-        "I              # M #             ####################   #    I",
-        "I              #   #                                #   #    I",
-        "I              #   #                                #   #    I",
-        "I###############   ##########                       #   #    I",
-        "I# B  T     T          M  C #                       # M #    I",
-        "I###############   ##########                       #   #####I",
-        "I              #   #                                #        I",
-        "I              # M #                                #   #####I",
-        "I              # P #             ##########         # M #    I",
+        "I              #   #             ##########         # M #    I",
         "I              #   #             # M M   B#         #   #    I",
         "I              #   #             #  #######         #   #    I",
         "I              #   #             #   #              #   #    I",
@@ -225,18 +216,39 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente)
         "I------------------------------------------------------------I"
     };
 
+    // Copia la mappa di base in una mappa modificabile
+    char mappa_dinamica[MAPPA_RIGHE][MAPPA_COLONNE + 1];
+    for (int r = 0; r < MAPPA_RIGHE; r++) {
+        strcpy(mappa_dinamica[r], MAPPA_BASE[r]);
+    }
+
+    // Posiziona il giocatore (&) sulla mappa se la stanza è valida
+    if (corrente) {
+        for (int i = 0; i < (int)(sizeof(mappa_stanze) / sizeof(mappa_stanze[0])); i++) {
+            if (mappa_stanze[i].stanza_id == corrente->id) {
+                int r = mappa_stanze[i].riga;
+                int c = mappa_stanze[i].colonna;
+                if (r >= 0 && r < MAPPA_RIGHE && c >= 0 && c < MAPPA_COLONNE) {
+                    mappa_dinamica[r][c] = '&';
+                }
+                break;
+            }
+        }
+    }
+
     printf("\n=== MAPPA DEL DUNGEON ===\n");
     for (int r = 0; r < MAPPA_RIGHE; r++) {
         for (int c = 0; c < MAPPA_COLONNE; c++) {
-            putchar(MAPPA_TERMINALE[r][c]);
+            putchar(mappa_dinamica[r][c]);
         }
         putchar('\n');
     }
 
-    puts("\nLegenda:");
+    printf("\nStanza attuale: %s (ID: %d)\n\n", corrente ? corrente->nome : "Sconosciuta", corrente ? corrente->id : -1);
+    puts("Legenda:");
     puts("  # = Muro");
     puts("  S = Spawn/Inizio");
-    puts("  & = Giocatore");
+    puts("  & = Giocatore (stanza corrente)");
     puts("  M = Mostro");
     puts("  O = Oggetto");
     puts("  B = Baule");
