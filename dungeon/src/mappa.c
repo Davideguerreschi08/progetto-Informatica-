@@ -164,14 +164,13 @@ void distruggi_mappa(Stanza **stanze, int n)
     num_stanze = 0;
 }
 
-void stampa_mappa(Stanza **stanze, int n, Stanza *corrente)
+void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe)
 {
     (void)stanze;
     (void)n;
     (void)corrente;
 
-    enum { MAPPA_RIGHE_T = 25, MAPPA_COLONNE_T = 62 };
-    enum { MAPPA_RIGHE_B = 25, MAPPA_COLONNE_B = 62 };
+    enum { MAPPA_RIGHE_T = 26, MAPPA_COLONNE_T = 62 };
 
     static const char MAPPA_TERMINALE[MAPPA_RIGHE_T][MAPPA_COLONNE_T + 1] = {
         "I------------------------------------------------------------I",
@@ -202,52 +201,86 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente)
         "I------------------------------------------------------------I"
     };
 
-    static const char MAPPA_BACKEND[MAPPA_RIGHE_B][MAPPA_COLONNE_B + 1] = {
-        "I------------------------------------------------------------I",
-        "I#####################################                       I",
-        "IS/&       O               M         #                       I",
-        "I###############   ###############   #                       I",
-        "I              #   #             #   ####################    I",
-        "I              #   #             #        T     P       #    I",
-        "I              # M #             ####################   #    I",
-        "I              #   #                                #   #    I",
-        "I              #   #                                #   #    I",
-        "I###############   ##########                       #   #    I",
-        "I# B  T     T          M  C #                       # M #    I",
-        "I###############   ##########                       #   #####I",
-        "I              #   #                                #        ]",
-        "I              # M #                                #   #####I",
-        "I              # P #             ##########         # M #    I",
-        "I              #   #             # M M   B#         #   #    I",
-        "I              #   #             #   ######         #   #    I",
-        "I              #   #             #   #              #   #    I",
-        "I              #   #             #   #              #   #    I",
-        "I              #   #             #   #              #   #    I",
-        "I   ############   #             #   #              #   #    I",
-        "I   #              #             #   #              #   #    I",
-        "I   #   ##########################   ################   #    I",
-        "I   #     T            M                T          P    #    I",
-        "I   #####################################################    I",
-        "I------------------------------------------------------------I"
-    };
-
-    printf("\n=== MAPPA DEL DUNGEON ===\n");
+    printf("\n");
+    
+    // Stampa intestazione mappa e stato
+    printf("%-64s STATO EROE\n", "=== MAPPA DEL DUNGEON ===");
+    printf("%-64s ║════════════════╗\n", "");
+    
+    // Stampa riga per riga mappa e stato a lato
     for (int r = 0; r < MAPPA_RIGHE_T; r++) {
         for (int c = 0; c < MAPPA_COLONNE_T; c++) {
             putchar(MAPPA_TERMINALE[r][c]);
         }
+        
+        // Stampa le informazioni di stato a destra della mappa
+        if (eroe) {
+            switch (r) {
+                case 1:
+                    printf(" ║ Nome: %-18s", eroe->nome);
+                    break;
+                case 2:
+                    printf(" ║ HP: %3d/%3d", eroe->hp, eroe->hp_max);
+                    break;
+                case 3:
+                    printf(" ║ Livello: %d", eroe->livello);
+                    break;
+                case 4:
+                    printf(" ║ XP: %3d", eroe->xp);
+                    break;
+                case 5:
+                    printf(" ║ Attacco: %2d", eroe->attacco);
+                    break;
+                case 6:
+                    printf(" ║ Difesa: %2d", eroe->difesa);
+                    break;
+                case 7:
+                    printf(" ║ Oro: %3d", eroe->oro);
+                    break;
+                case 8:
+                    printf(" ║ Inv: %2d/%2d item", eroe->inventario.top + 1, MAX_INVENTARIO);
+                    break;
+                case 9:
+                    printf(" ║════════════════╝");
+                    break;
+                case 10:
+                    printf(" ║ LEGENDA:       ");
+                    break;
+                case 11:
+                    printf(" ║ # = Muro      ");
+                    break;
+                case 12:
+                    printf(" ║ S = Spawn     ");
+                    break;
+                case 13:
+                    printf(" ║ & = Giocatore ");
+                    break;
+                case 14:
+                    printf(" ║ M = Mostro    ");
+                    break;
+                case 15:
+                    printf(" ║ O = Oggetto   ");
+                    break;
+                case 16:
+                    printf(" ║ B = Baule     ");
+                    break;
+                case 17:
+                    printf(" ║ T = Trappola  ");
+                    break;
+                case 18:
+                    printf(" ║ P = Pozione   ");
+                    break;
+                case 19:
+                    printf(" ║ C = Chiave    ");
+                    break;
+                default:
+                    printf(" ║");
+                    break;
+            }
+        }
+        
         putchar('\n');
     }
 
-    puts("\nLegenda:");
-    puts("  # = Muro");
-    puts("  S = Spawn/Inizio");
-    puts("  & = Giocatore");
-    puts("  M = Mostro");
-    puts("  O = Oggetto");
-    puts("  B = Baule");
-    puts("  T = Trappola");
-    puts("  P = Pozione");
-    puts("  C = Chiave");
-    puts("");
+    printf("\n");
 }
