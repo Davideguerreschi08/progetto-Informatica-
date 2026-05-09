@@ -8,6 +8,7 @@
 const int livEXP[NUM_LIVELLI] = {0, 50, 120, 250, 500};
 
 // Crea un nuovo eroe
+// In crea_eroe, aggiungi la posizione iniziale sulla mappa visiva:
 Eroe* crea_eroe(const char* nome) {
     Eroe* e = (Eroe*)malloc(sizeof(Eroe));
     strcpy(e->nome, nome);
@@ -20,7 +21,63 @@ Eroe* crea_eroe(const char* nome) {
     e->oro = 0;
     e->inventario.top = -1;
     e->stanza_corrente = NULL;
+    e->pos_riga = 2;   // ← NUOVO: posizione di spawn sulla mappa
+    e->pos_col  = 5;   // ← NUOVO
     return e;
+}
+
+// usaOggetto con switch — ogni tipo fa la cosa giusta
+void usaOggetto(Eroe* e) {
+    Oggetto* ogg = pop(e);
+    if (!ogg) return;
+
+    printf("Hai usato: %s\n", ogg->nome);
+
+    switch (ogg->tipo) {
+        case POZIONE:
+            // ripristina HP, senza superare il massimo
+            e->hp += ogg->valore;
+            if (e->hp > e->hp_max) e->hp = e->hp_max;
+            printf("Recuperi %d HP. HP: %d/%d\n", ogg->valore, e->hp, e->hp_max);
+            free(ogg);  // consumato, libera memoria
+            break;
+
+        case ARMA:
+            e->attacco += ogg->valore;
+            printf("Equipaggi l'arma. Attacco: %d\n", e->attacco);
+            free(ogg);
+            break;
+
+        case ARMATURA:
+            e->difesa += ogg->valore;
+            printf("Equipaggi l'armatura. Difesa: %d\n", e->difesa);
+            free(ogg);
+            break;
+
+        case AMULETO:
+            e->hp_max += ogg->valore;
+            e->hp     += ogg->valore;
+            printf("HP massimi aumentati a %d!\n", e->hp_max);
+            free(ogg);
+            break;
+
+        case BOMBA:
+        case POZIONE_VELENO:
+            // questi si usano solo in combattimento — rimetti in inventario
+            printf("Puoi usarlo solo durante un combattimento!\n");
+            push(e, ogg);
+            break;
+
+        case CHIAVE:
+            printf("È una chiave: avvicinati a una porta bloccata.\n");
+            push(e, ogg);
+            break;
+
+        default:
+            printf("Non sai come usare questo oggetto.\n");
+            push(e, ogg);
+            break;
+    }
 }
 
 // PUSH (stack) - aggiunge oggetto in cima alla pila
@@ -82,20 +139,6 @@ void aggiungiXP(Eroe* e, int xp) {
         e->hp = e->hp_max;
         printf("** NUOVO LIVELLO! Ora sei a livello %d **\n", e->livello);
     }
-}
-
-// Usa un oggetto dall'inventario
-void usaOggetto(Eroe* e) {
-    Oggetto* ogg = pop(e);
-    if (ogg == NULL) {
-        return;
-    }
-    printf("Hai usato: %s\n", ogg->nome);
-    e->hp += ogg->valore;
-    if (e->hp > e->hp_max) {
-        e->hp = e->hp_max;
-    }
-    printf("HP attuali: %d/%d\n", e->hp, e->hp_max);
 }
 
 // Stampa lo stato dell'eroe

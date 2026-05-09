@@ -149,8 +149,10 @@ typedef struct {
     int    xp;
     int    livello;
     int    oro;
-    Pila   inventario;        // la pila degli oggetti raccolti
-    Stanza *stanza_corrente;  // stanza in cui si trova l'eroe in questo momento
+    Pila   inventario;
+    Stanza *stanza_corrente;
+    int    pos_riga;   // ← NUOVO: posizione sulla mappa visiva
+    int    pos_col;    // ← NUOVO
 } Eroe;
 
 #endif  // fine include guard — tutto sopra viene incluso una volta sola
