@@ -14,6 +14,14 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
                            Eroe *eroe, bool *partita_vinta);
 static void prendi_oggetto(Eroe *eroe, const char *nome);
 
+// Funzione per stampare i comandi disponibili
+static void stampa_comandi(void) {
+    printf("Movimento: W=Nord  S=Sud  A=Ovest  D=Est\n");
+    printf("Comandi:   guarda, prendi <oggetto>, usa, attacca,\n");
+    printf("           inventario, salva, carica\n\n");
+}
+static void stampa_comandi(void);
+
 // Controlla se il giocatore si trova ESATTAMENTE sulla cella di un mostro vivo.
 // mostro_in_posizione scorre la tabella ELEMENTI in mappa.c:
 // se trova un mostro di tipo 1 con (r,c) uguale alla pos del giocatore,
@@ -32,7 +40,8 @@ static void controlla_incontro(Eroe *eroe, bool *partita_vinta)
     // Aggiorna la stanza corrente nel caso non fosse gia' quella giusta
     eroe->stanza_corrente = s;
 
-    // Stampa la mappa una volta prima che inizi il combattimento
+    // Stampa i comandi e la mappa una volta prima che inizi il combattimento
+    stampa_comandi();
     stampa_mappa(tutte_stanze, num_stanze, s, eroe);
 
     inizia_combattimento(eroe, s->mostro);
@@ -58,9 +67,8 @@ int main(void)
     printf("\n╔════════════════════════════════════════════════════════╗\n");
     printf("║       BENVENUTO NEL DUNGEON - AVVENTURA INIZIA         ║\n");
     printf("╚════════════════════════════════════════════════════════╝\n\n");
-    printf("Movimento: W=Nord  S=Sud  A=Ovest  D=Est\n");
-    printf("Comandi:   guarda, prendi <oggetto>, usa, attacca,\n");
-    printf("           inventario, salva, carica\n\n");
+
+    stampa_comandi();
 
     stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
 
@@ -71,9 +79,8 @@ int main(void)
         TipoComando cmd = parse_comando(input, argomento);
         esegui_comando(cmd, argomento, eroe, &partita_vinta);
 
-        // Stampa la mappa aggiornata dopo ogni comando.
-        // Se il mostro e' morto, 'M' e' gia' sparito perche'
-        // stampa_mappa controlla mostro->vivo prima di disegnarlo.
+        // Stampa i comandi e la mappa aggiornata dopo ogni comando.
+        stampa_comandi();
         stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
     }
 
