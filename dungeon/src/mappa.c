@@ -143,14 +143,22 @@ Stanza *costruisci_mappa(void)
 
     aggiungi_oggetto(s0, nuovo_oggetto("Pozione di cura",     POZIONE,        20));
     aggiungi_oggetto(s1, nuovo_oggetto("Chiave arrugginita",  CHIAVE,          0));
+    aggiungi_oggetto(s1, nuovo_oggetto("Torcia",             TORCIA,          0));
+    aggiungi_oggetto(s1, nuovo_oggetto("Torcia",             TORCIA,          0));
     aggiungi_oggetto(s2, nuovo_oggetto("Amuleto del coraggio",AMULETO,         5));
     aggiungi_oggetto(s4, nuovo_oggetto("Bomba",               BOMBA,          30));
+    aggiungi_oggetto(s4, nuovo_oggetto("Torcia",             TORCIA,          0));
+    aggiungi_oggetto(s4, nuovo_oggetto("Pozione di cura",     POZIONE,        20));
     aggiungi_oggetto(s6, nuovo_oggetto("Pozione velenosa",    POZIONE_VELENO, 15));
+    aggiungi_oggetto(s7, nuovo_oggetto("Torcia",             TORCIA,          0));
+    aggiungi_oggetto(s7, nuovo_oggetto("Torcia",             TORCIA,          0));
 
     s1->mostro = nuovo_mostro("Goblin",        GOBLIN,    18,  6, 2,  20,  10);
     s3->mostro = nuovo_mostro("Scheletro",     SCHELETRO, 25,  8, 3,  30,  15);
     s4->mostro = nuovo_mostro("Mago oscuro",   MAGO,      32, 10, 4,  40,  20);
     s5->mostro = nuovo_mostro("Demone minore", DEMONE,    40, 12, 5,  50,  25);
+    s5->mostro = nuovo_mostro("Orchetto",      GOBLIN,    20,  7, 2,  25,  12);  // extra in s5
+    s5->mostro = nuovo_mostro("Troll",         SCHELETRO, 30,  9, 4,  35,  18);  // extra in s5
     s7->mostro = nuovo_mostro("Drago nero",    BOSS,      80, 14, 6, 150, 100);
 
     return s0;
@@ -217,16 +225,25 @@ typedef struct {
 } ElementoMappa;
 
 static const ElementoMappa ELEMENTI[] = {
-    { 2, 15, 'P',  0, 0 },  // s0: Pozione di cura
-    { 7, 17, 'M',  1, 1 },  // s1: Goblin
-    { 8, 17, 'K',  1, 0 },  // s1: Chiave arrugginita
-    {10,  5, 'o',  2, 0 },  // s2: Amuleto
-    {10, 40, 'M',  3, 1 },  // s3: Scheletro
-    { 2, 45, 'M',  4, 1 },  // s4: Mago oscuro
-    { 2, 50, 'B',  4, 0 },  // s4: Bomba
-    { 5,  7, 'M',  5, 1 },  // s5: Demone minore
-    {14, 54, 'V',  6, 0 },  // s6: Pozione velenosa
-    {23, 30, 'M',  7, 1 },  // s7: Drago nero (BOSS)
+    { 2, 9, 'P',  0, 0 },  // s0: Pozione di cura
+    { 2, 31, 'M',  1, 1 },  // s1: Goblin
+    { 6, 14, 'M',  1, 1 },  // s1: Goblin
+    { 10, 26, 'K',  1, 0 },  // s1: Chiave arrugginita
+    { 10, 5, 'T',  1, 0 },  // s1: Torcia
+    { 10, 10, 'T',  1, 0 },  // s1: Torcia
+    { 10, 2, 'o',  2, 0 },  // s2: Amuleto
+    { 10, 22, 'M',  3, 1 },  // s3: Scheletro
+    { 10, 42, 'M',  4, 1 },  // s4: Mago oscuro
+    { 3, 40, 'T',  4, 0 },  // s4: Torcia
+    { 3, 44, 'P',  4, 0 },  // s4: Pozione
+    { 15, 26, 'B',  4, 0 },  // s4: Bomba
+    { 14, 46, 'M',  5, 1 },  // s5: Demone minore
+    { 15, 18, 'M',  5, 1 },  // s5: Orchetto
+    { 15, 20, 'M',  5, 1 },  // s5: Troll
+    { 23, 48, 'V',  6, 0 },  // s6: Pozione velenosa
+    { 23, 20, 'M',  7, 1 },  // s7: Drago nero
+    { 23, 7, 'T',  7, 0 },  // s7: Torcia
+    { 23, 36, 'T',  7, 0 },  // s7: Torcia
     {-1, -1, '\0', -1, -1}  // sentinel
 };
 
