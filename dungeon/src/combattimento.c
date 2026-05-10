@@ -203,8 +203,7 @@ void inizia_combattimento(Eroe *eroe, Mostro *mostro)
             default:
                 printf("  Scelta non valida. Scegli 1, 2 o 3.\n");
                 turno_usato = 0;  // input sbagliato: non consumare il turno
-                break;
-        }
+                break;  
 
         // Il mostro risponde solo se il turno è stato consumato ed è ancora vivo
         if (turno_usato && mostro->hp > 0 && eroe->hp > 0) {
