@@ -14,10 +14,36 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
                            Eroe *eroe, bool *partita_vinta);
 static void prendi_oggetto(Eroe *eroe, const char *nome);
 
+// Controlla se il giocatore si trova ESATTAMENTE sulla cella di un mostro vivo.
+// mostro_in_posizione scorre la tabella ELEMENTI in mappa.c:
+// se trova un mostro di tipo 1 con (r,c) uguale alla pos del giocatore,
+// restituisce 1 e scrive il puntatore alla stanza in *s.
+static void controlla_incontro(Eroe *eroe, bool *partita_vinta)
+{
+    if (!eroe) return;
+
+    Stanza *s = NULL;
+    if (!mostro_in_posizione(eroe->pos_riga, eroe->pos_col, &s)) return;
+
+    // Il giocatore e' esattamente sulla cella 'M' → combattimento automatico
+    printf("\n  *** Sei finito sopra un %s! Lo scontro inizia! ***\n",
+           s->mostro->nome);
+
+    // Aggiorna la stanza corrente nel caso non fosse gia' quella giusta
+    eroe->stanza_corrente = s;
+
+    // Stampa la mappa una volta prima che inizi il combattimento
+    stampa_mappa(tutte_stanze, num_stanze, s, eroe);
+
+    inizia_combattimento(eroe, s->mostro);
+
+    // Se era il boss e l'abbiamo sconfitto → partita vinta
+    if (s->mostro->tipo == BOSS && !s->mostro->vivo)
+        *partita_vinta = true;
+}
+
 int main(void)
 {
-    // Inizializza il generatore di numeri casuali una volta sola all'avvio.
-    // Senza questa riga rand() darebbe sempre la stessa sequenza.
     srand((unsigned int)time(NULL));
 
     Eroe *eroe = crea_eroe("Avventuriero");
@@ -40,11 +66,14 @@ int main(void)
 
     while (eroe->hp > 0 && !partita_vinta) {
         printf("> ");
-        if (!fgets(input, MAX_INPUT, stdin))
-            break;
+        if (!fgets(input, MAX_INPUT, stdin)) break;
 
         TipoComando cmd = parse_comando(input, argomento);
         esegui_comando(cmd, argomento, eroe, &partita_vinta);
+
+        // Stampa la mappa aggiornata dopo ogni comando.
+        // Se il mostro e' morto, 'M' e' gia' sparito perche'
+        // stampa_mappa controlla mostro->vivo prima di disegnarlo.
         stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
     }
 
@@ -64,7 +93,6 @@ static TipoComando parse_comando(const char *input, char *argomento)
     argomento[0] = '\0';
     sscanf(input, "%31s %63[^\n]", comando, argomento);
 
-    // WASD → direzione testuale, poi trattati come CMD_VAI
     if (strlen(comando) == 1) {
         char c = tolower(comando[0]);
         if (c == 'w') { strcpy(argomento, "nord");  return CMD_VAI; }
@@ -112,7 +140,6 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
     switch (cmd) {
 
     case CMD_VAI: {
-        // Calcola la cella di destinazione in base alla direzione
         int dr = 0, dc = 0;
         if      (strcmp(argomento, "nord")  == 0) dr = -1;
         else if (strcmp(argomento, "sud")   == 0) dr = +1;
@@ -123,23 +150,24 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         int nr = eroe->pos_riga + dr;
         int nc = eroe->pos_col  + dc;
 
-        // CONTROLLO CHE HAI DESCRITTO:
-        // se la cella di destinazione e' uno spazio → puoi andare
-        // se e' '#' o 'I' → muro, non puoi andare
         if (e_calpestabile(nr, nc)) {
             eroe->pos_riga = nr;
             eroe->pos_col  = nc;
 
-            // Controlla se il giocatore e' entrato in una nuova stanza
+            // Aggiorna la stanza logica se siamo entrati in una nuova zona
             int id = stanza_id_per_posizione(nr, nc);
             if (id >= 0 && id < num_stanze) {
                 Stanza *nuova = tutte_stanze[id];
                 if (nuova && nuova != eroe->stanza_corrente) {
-                    // Cambia stanza e stampa il nome
                     cambiaStanza(&eroe->stanza_corrente, nuova);
                     nuova->visitata = true;
                 }
             }
+
+            // Controlla se il giocatore e' finito esattamente sulla cella 'M'.
+            // Se si', il combattimento parte automaticamente.
+            controlla_incontro(eroe, partita_vinta);
+
         } else {
             printf("Muro! Non puoi andare in quella direzione.\n");
         }
@@ -150,14 +178,12 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         if (eroe->stanza_corrente) {
             printf("\n--- %s ---\n", eroe->stanza_corrente->nome);
             printf("%s\n", eroe->stanza_corrente->descrizione);
-            // Mostra oggetti nella stanza
             if (eroe->stanza_corrente->oggetti) {
                 printf("Oggetti presenti: ");
                 for (Oggetto *o = eroe->stanza_corrente->oggetti; o; o = o->next)
                     printf("[%s] ", o->nome);
                 printf("\n");
             }
-            // Mostra mostro se vivo
             if (eroe->stanza_corrente->mostro && eroe->stanza_corrente->mostro->vivo)
                 printf("Attenzione! Qui c'e' un %s (HP: %d).\n",
                        eroe->stanza_corrente->mostro->nome,
@@ -174,6 +200,7 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         break;
 
     case CMD_ATTACCA:
+        // "attacca" manuale rimane disponibile come fallback
         if (eroe->stanza_corrente && eroe->stanza_corrente->mostro
             && eroe->stanza_corrente->mostro->vivo) {
             inizia_combattimento(eroe, eroe->stanza_corrente->mostro);

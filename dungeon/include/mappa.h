@@ -12,13 +12,15 @@ void distruggi_mappa(Stanza **stanze, int n);
 /* Stampa la mappa ASCII con giocatore ('&') e mostri ('M') */
 void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe);
 
-/* Restituisce 1 se la cella (r,c) e' calpestabile (spazio ' '), 0 altrimenti.
-   Usata dal sistema di movimento WASD: se e' spazio puoi andare. */
+/* Restituisce 1 se la cella (r,c) e' calpestabile (spazio ' '), 0 altrimenti */
 int e_calpestabile(int r, int c);
 
-/* Restituisce l'id della stanza corrispondente alla posizione (r,c),
-   oppure -1 se la posizione non e' in nessuna zona conosciuta. */
+/* Restituisce l'id della stanza corrispondente a (r,c), o -1 se fuori da tutte */
 int stanza_id_per_posizione(int r, int c);
+
+/* Restituisce 1 se nella cella (r,c) c'e' un mostro vivo,
+   e scrive il puntatore alla sua stanza in *out. 0 altrimenti. */
+int mostro_in_posizione(int r, int c, Stanza **out);
 
 /* Array globale di tutte le stanze e contatore */
 extern Stanza *tutte_stanze[MAX_STANZE];
