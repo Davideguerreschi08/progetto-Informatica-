@@ -200,16 +200,8 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         break;
 
     case CMD_ATTACCA:
-        // "attacca" manuale rimane disponibile come fallback
-        if (eroe->stanza_corrente && eroe->stanza_corrente->mostro
-            && eroe->stanza_corrente->mostro->vivo) {
-            inizia_combattimento(eroe, eroe->stanza_corrente->mostro);
-            if (eroe->stanza_corrente->mostro->tipo == BOSS &&
-                !eroe->stanza_corrente->mostro->vivo)
-                *partita_vinta = true;
-        } else {
-            printf("Non c'e' nessun nemico da attaccare qui.\n");
-        }
+        printf("Il combattimento parte automaticamente quando calpesti un nemico (M).\n");
+        printf("Muoviti sopra di lui e lo scontro inizia da solo.\n");
         break;
 
     case CMD_INVENTARIO:
