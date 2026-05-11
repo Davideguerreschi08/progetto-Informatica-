@@ -14,41 +14,34 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
                            Eroe *eroe, bool *partita_vinta);
 static void prendi_oggetto(Eroe *eroe, const char *nome);
 
-// Funzione per stampare i comandi disponibili
-static void stampa_comandi(void) {
-    printf("Movimento: W=Nord  S=Sud  A=Ovest  D=Est\n");
-    printf("Comandi:   guarda, prendi <oggetto>, usa, attacca,\n");
-    printf("           inventario, salva, carica\n\n");
-}
-static void stampa_comandi(void);
-
-// Controlla se il giocatore si trova ESATTAMENTE sulla cella di un mostro vivo.
-// mostro_in_posizione scorre la tabella ELEMENTI in mappa.c:
-// se trova un mostro di tipo 1 con (r,c) uguale alla pos del giocatore,
-// restituisce 1 e scrive il puntatore alla stanza in *s.
 static void controlla_incontro(Eroe *eroe, bool *partita_vinta)
 {
     if (!eroe) return;
-
     Stanza *s = NULL;
     if (!mostro_in_posizione(eroe->pos_riga, eroe->pos_col, &s)) return;
 
-    // Il giocatore e' esattamente sulla cella 'M' → combattimento automatico
     printf("\n  *** Sei finito sopra un %s! Lo scontro inizia! ***\n",
            s->mostro->nome);
-
-    // Aggiorna la stanza corrente nel caso non fosse gia' quella giusta
     eroe->stanza_corrente = s;
-
-    // Stampa i comandi e la mappa una volta prima che inizi il combattimento
-    stampa_comandi();
     stampa_mappa(tutte_stanze, num_stanze, s, eroe);
-
     inizia_combattimento(eroe, s->mostro);
 
-    // Se era il boss e l'abbiamo sconfitto → partita vinta
     if (s->mostro->tipo == BOSS && !s->mostro->vivo)
         *partita_vinta = true;
+}
+
+static void controlla_oggetto(Eroe *eroe)
+{
+    if (!eroe) return;
+    Stanza *s = NULL;
+    if (!oggetto_in_posizione(eroe->pos_riga, eroe->pos_col, &s)) return;
+
+    Oggetto *ogg = s->oggetti;
+    s->oggetti = ogg->next;
+    ogg->next = NULL;
+
+    printf("\n  *** Hai trovato: %s! ***\n", ogg->nome);
+    push(eroe, ogg);
 }
 
 int main(void)
@@ -67,8 +60,8 @@ int main(void)
     printf("\n╔════════════════════════════════════════════════════════╗\n");
     printf("║       BENVENUTO NEL DUNGEON - AVVENTURA INIZIA         ║\n");
     printf("╚════════════════════════════════════════════════════════╝\n\n");
-
-    stampa_comandi();
+    printf("Movimento: W=Nord  S=Sud  A=Ovest  D=Est\n");
+    printf("Comandi:   guarda, usa, inventario, salva, carica\n\n");
 
     stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
 
@@ -79,8 +72,6 @@ int main(void)
         TipoComando cmd = parse_comando(input, argomento);
         esegui_comando(cmd, argomento, eroe, &partita_vinta);
 
-        // Stampa i comandi e la mappa aggiornata dopo ogni comando.
-        stampa_comandi();
         stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
     }
 
@@ -112,7 +103,6 @@ static TipoComando parse_comando(const char *input, char *argomento)
     if (strcmp(comando, "guarda")     == 0) return CMD_GUARDA;
     if (strcmp(comando, "prendi")     == 0) return CMD_PRENDI;
     if (strcmp(comando, "usa")        == 0) return CMD_USA;
-    if (strcmp(comando, "attacca")    == 0) return CMD_ATTACCA;
     if (strcmp(comando, "inventario") == 0) return CMD_INVENTARIO;
     if (strcmp(comando, "salva")      == 0) return CMD_SALVA;
     if (strcmp(comando, "carica")     == 0) return CMD_CARICA;
@@ -161,7 +151,6 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
             eroe->pos_riga = nr;
             eroe->pos_col  = nc;
 
-            // Aggiorna la stanza logica se siamo entrati in una nuova zona
             int id = stanza_id_per_posizione(nr, nc);
             if (id >= 0 && id < num_stanze) {
                 Stanza *nuova = tutte_stanze[id];
@@ -171,8 +160,7 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
                 }
             }
 
-            // Controlla se il giocatore e' finito esattamente sulla cella 'M'.
-            // Se si', il combattimento parte automaticamente.
+            controlla_oggetto(eroe);
             controlla_incontro(eroe, partita_vinta);
 
         } else {
@@ -207,8 +195,7 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         break;
 
     case CMD_ATTACCA:
-        printf("Il combattimento parte automaticamente quando calpesti un nemico (M).\n");
-        printf("Muoviti sopra di lui e lo scontro inizia da solo.\n");
+        printf("Il combattimento parte automaticamente: calpesta il nemico (M) sulla mappa.\n");
         break;
 
     case CMD_INVENTARIO:
@@ -221,25 +208,27 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
 
     case CMD_SALVA: {
         const char *file = argomento[0] ? argomento : "partita.sav";
-        if (salva_partita(eroe, eroe->stanza_corrente, file) == 0)
-            printf("Partita salvata in '%s'.\n", file);
-        else
+        if (salva_partita(eroe, eroe->stanza_corrente, file) == 0) {
+            // Messaggio stampato da salva_partita
+        } else {
             printf("Errore durante il salvataggio.\n");
+        }
         break;
     }
 
     case CMD_CARICA: {
         const char *file = argomento[0] ? argomento : "partita.sav";
-        if (carica_partita(eroe, &eroe->stanza_corrente, file) == 0)
-            printf("Partita caricata da '%s'.\n", file);
-        else
+        if (carica_partita(eroe, &eroe->stanza_corrente, file) == 0) {
+            // Messaggio stampato da carica_partita
+        } else {
             printf("Errore durante il caricamento.\n");
+        }
         break;
     }
 
     default:
         printf("Comando non riconosciuto.\n");
-        printf("Usa: W/A/S/D, guarda, prendi, usa, attacca, inventario, salva, carica\n");
+        printf("Usa: W/A/S/D, guarda, usa, inventario, salva, carica\n");
         break;
     }
 }

@@ -38,8 +38,6 @@ static const char MAPPA_TERMINALE[MAPPA_RIGHE_T][MAPPA_COLONNE_T + 1] = {
     "I------------------------------------------------------------I"
 };
 
-// ─── FUNZIONI INTERNE ──────────────────────────────────────────────────────────
-
 static Oggetto *nuovo_oggetto(const char *nome, TipoOggetto tipo, int valore)
 {
     Oggetto *o = malloc(sizeof(Oggetto));
@@ -105,8 +103,6 @@ static void collega_stanze(Stanza *da, Stanza *a, const char *dir)
     else if (strcmp(dir, "ovest") == 0) { da->ovest = a; a->est   = da; }
 }
 
-// ─── COSTRUZIONE MAPPA ────────────────────────────────────────────────────────
-
 Stanza *costruisci_mappa(void)
 {
     num_stanze = 0;
@@ -141,24 +137,16 @@ Stanza *costruisci_mappa(void)
     collega_stanze(s5, s6, "sud");
     collega_stanze(s6, s7, "est");
 
-    aggiungi_oggetto(s0, nuovo_oggetto("Pozione di cura",     POZIONE,        20));
-    aggiungi_oggetto(s1, nuovo_oggetto("Chiave arrugginita",  CHIAVE,          0));
-    aggiungi_oggetto(s1, nuovo_oggetto("Torcia",             TORCIA,          0));
-    aggiungi_oggetto(s1, nuovo_oggetto("Torcia",             TORCIA,          0));
-    aggiungi_oggetto(s2, nuovo_oggetto("Amuleto del coraggio",AMULETO,         5));
-    aggiungi_oggetto(s4, nuovo_oggetto("Bomba",               BOMBA,          30));
-    aggiungi_oggetto(s4, nuovo_oggetto("Torcia",             TORCIA,          0));
-    aggiungi_oggetto(s4, nuovo_oggetto("Pozione di cura",     POZIONE,        20));
-    aggiungi_oggetto(s6, nuovo_oggetto("Pozione velenosa",    POZIONE_VELENO, 15));
-    aggiungi_oggetto(s7, nuovo_oggetto("Torcia",             TORCIA,          0));
-    aggiungi_oggetto(s7, nuovo_oggetto("Torcia",             TORCIA,          0));
+    aggiungi_oggetto(s0, nuovo_oggetto("Pozione di cura",      POZIONE,        20));
+    aggiungi_oggetto(s1, nuovo_oggetto("Chiave arrugginita",   CHIAVE,          0));
+    aggiungi_oggetto(s2, nuovo_oggetto("Amuleto del coraggio", AMULETO,         5));
+    aggiungi_oggetto(s4, nuovo_oggetto("Bomba",                BOMBA,          30));
+    aggiungi_oggetto(s6, nuovo_oggetto("Pozione velenosa",     POZIONE_VELENO, 15));
 
     s1->mostro = nuovo_mostro("Goblin",        GOBLIN,    18,  6, 2,  20,  10);
     s3->mostro = nuovo_mostro("Scheletro",     SCHELETRO, 25,  8, 3,  30,  15);
     s4->mostro = nuovo_mostro("Mago oscuro",   MAGO,      32, 10, 4,  40,  20);
     s5->mostro = nuovo_mostro("Demone minore", DEMONE,    40, 12, 5,  50,  25);
-    s5->mostro = nuovo_mostro("Orchetto",      GOBLIN,    20,  7, 2,  25,  12);  // extra in s5
-    s5->mostro = nuovo_mostro("Troll",         SCHELETRO, 30,  9, 4,  35,  18);  // extra in s5
     s7->mostro = nuovo_mostro("Drago nero",    BOSS,      80, 14, 6, 150, 100);
 
     return s0;
@@ -182,8 +170,6 @@ void distruggi_mappa(Stanza **stanze, int n)
     }
     num_stanze = 0;
 }
-
-// ─── MOVIMENTO ────────────────────────────────────────────────────────────────
 
 int e_calpestabile(int r, int c)
 {
@@ -214,9 +200,6 @@ int stanza_id_per_posizione(int r, int c)
     return -1;
 }
 
-// ─── TABELLA ELEMENTI ─────────────────────────────────────────────────────────
-
-// Ogni elemento ha: posizione (r,c), simbolo, stanza, tipo (0=oggetto, 1=mostro)
 typedef struct {
     int  r, c;
     char simbolo;
@@ -225,29 +208,19 @@ typedef struct {
 } ElementoMappa;
 
 static const ElementoMappa ELEMENTI[] = {
-    { 2, 9, 'P',  0, 0 },  // s0: Pozione di cura
-    { 2, 31, 'M',  1, 1 },  // s1: Goblin
-    { 6, 14, 'M',  1, 1 },  // s1: Goblin
-    { 10, 26, 'K',  1, 0 },  // s1: Chiave arrugginita
-    { 10, 5, 'T',  1, 0 },  // s1: Torcia
-    { 10, 10, 'T',  1, 0 },  // s1: Torcia
-    { 10, 2, 'o',  2, 0 },  // s2: Amuleto
-    { 10, 22, 'M',  3, 1 },  // s3: Scheletro
-    { 10, 42, 'M',  4, 1 },  // s4: Mago oscuro
-    { 3, 40, 'T',  4, 0 },  // s4: Torcia
-    { 3, 44, 'P',  4, 0 },  // s4: Pozione
-    { 15, 26, 'B',  4, 0 },  // s4: Bomba
-    { 14, 46, 'M',  5, 1 },  // s5: Demone minore
-    { 15, 18, 'M',  5, 1 },  // s5: Orchetto
-    { 15, 20, 'M',  5, 1 },  // s5: Troll
-    { 23, 48, 'V',  6, 0 },  // s6: Pozione velenosa
-    { 23, 20, 'M',  7, 1 },  // s7: Drago nero
-    { 23, 7, 'T',  7, 0 },  // s7: Torcia
-    { 23, 36, 'T',  7, 0 },  // s7: Torcia
-    {-1, -1, '\0', -1, -1}  // sentinel
+    { 2, 15, 'P',  0, 0 },
+    { 7, 17, 'M',  1, 1 },
+    { 8, 17, 'K',  1, 0 },
+    {10,  5, 'o',  2, 0 },
+    {10, 40, 'M',  3, 1 },
+    { 2, 45, 'M',  4, 1 },
+    { 2, 50, 'B',  4, 0 },
+    { 5,  7, 'M',  5, 1 },
+    {14, 54, 'V',  6, 0 },
+    {23, 30, 'M',  7, 1 },
+    {-1, -1, '\0', -1, -1}
 };
 
-// Restituisce il simbolo del primo oggetto nella stanza, '\0' se vuota
 static char simbolo_oggetto_stanza(int stanza_id)
 {
     if (stanza_id < 0 || stanza_id >= num_stanze) return '\0';
@@ -266,62 +239,72 @@ static char simbolo_oggetto_stanza(int stanza_id)
     }
 }
 
-// ─── MOSTRO IN POSIZIONE ──────────────────────────────────────────────────────
-
-// Scorre ELEMENTI cercando un mostro vivo sulla cella (r,c).
-// Se lo trova, scrive il puntatore alla stanza in *out e restituisce 1.
-// Questa funzione e' usata da main.c per far partire il combattimento
-// quando il giocatore calpesta esattamente la cella 'M' sulla mappa.
 int mostro_in_posizione(int r, int c, Stanza **out)
 {
     for (int i = 0; ELEMENTI[i].r != -1; i++) {
-        if (ELEMENTI[i].tipo != 1) continue;       // solo mostri
-        if (ELEMENTI[i].r != r || ELEMENTI[i].c != c) continue; // posizione diversa
-
+        if (ELEMENTI[i].tipo != 1) continue;
+        if (ELEMENTI[i].r != r || ELEMENTI[i].c != c) continue;
         int sid = ELEMENTI[i].stanza_id;
         if (sid < 0 || sid >= num_stanze) continue;
         Stanza *s = tutte_stanze[sid];
-        if (!s || !s->mostro || !s->mostro->vivo) continue; // mostro gia' morto
-
+        if (!s || !s->mostro || !s->mostro->vivo) continue;
         if (out) *out = s;
-        return 1;  // trovato mostro vivo su questa cella
+        return 1;
     }
     return 0;
 }
 
-// ─── STAMPA MAPPA ─────────────────────────────────────────────────────────────
+int oggetto_in_posizione(int r, int c, Stanza **out)
+{
+    for (int i = 0; ELEMENTI[i].r != -1; i++) {
+        if (ELEMENTI[i].tipo != 0) continue;
+        if (ELEMENTI[i].r != r || ELEMENTI[i].c != c) continue;
+        int sid = ELEMENTI[i].stanza_id;
+        if (sid < 0 || sid >= num_stanze) continue;
+        Stanza *s = tutte_stanze[sid];
+        if (!s || !s->oggetti) continue;
+        if (out) *out = s;
+        return 1;
+    }
+    return 0;
+}
+
+static void stampa_comandi(void)
+{
+    printf("\n");
+    printf("╔════════════════════════════════════════════════════════╗\n");
+    printf("║                      COMANDI DISPONIBILI                ║\n");
+    printf("╠════════════════════════════════════════════════════════╣\n");
+    printf("║ Movimento: W=Nord  S=Sud  A=Ovest  D=Est               ║\n");
+    printf("║ Comandi:   guarda, usa, inventario, salva, carica      ║\n");
+    printf("╚════════════════════════════════════════════════════════╝\n");
+}
 
 void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe)
 {
+    stampa_comandi();
     (void)corrente;
 
-    // 1. Copia la mappa statica in un buffer modificabile
     char buf[MAPPA_RIGHE_T][MAPPA_COLONNE_T + 1];
     for (int r = 0; r < MAPPA_RIGHE_T; r++)
         strcpy(buf[r], MAPPA_TERMINALE[r]);
 
-    // 2. Scorre ELEMENTI e disegna ogni simbolo se ancora presente
     for (int i = 0; ELEMENTI[i].r != -1; i++) {
         int  r   = ELEMENTI[i].r;
         int  c   = ELEMENTI[i].c;
         int  sid = ELEMENTI[i].stanza_id;
         int  t   = ELEMENTI[i].tipo;
-
         if (sid < 0 || sid >= n || !stanze[sid]) continue;
-
         if (t == 1) {
-            // MOSTRO: appare solo se vivo — quando muore scompare automaticamente
             if (stanze[sid]->mostro && stanze[sid]->mostro->vivo)
                 buf[r][c] = 'M';
         } else {
-            // OGGETTO: appare solo se la stanza ha ancora oggetti
             char s = simbolo_oggetto_stanza(sid);
             if (s != '\0')
                 buf[r][c] = s;
         }
     }
 
-    // 3. Disegna '&' sulla posizione del giocatore
     if (eroe) {
         int r = eroe->pos_riga;
         int c = eroe->pos_col;
@@ -329,14 +312,12 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe)
             buf[r][c] = '&';
     }
 
-    // 4. Stampa buffer + sidebar
     printf("\n");
     printf("%-62s  STATO EROE\n", "=== MAPPA DEL DUNGEON ===");
     printf("%-62s  +------------------+\n", "");
 
     for (int r = 0; r < MAPPA_RIGHE_T; r++) {
         printf("%s", buf[r]);
-
         if (eroe) {
             switch (r) {
                 case 1:  printf("  | Nome: %-12s |", eroe->nome); break;
