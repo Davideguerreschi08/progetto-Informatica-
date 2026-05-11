@@ -28,8 +28,43 @@ Eroe* crea_eroe(const char* nome) {
 
 // usaOggetto con switch — ogni tipo fa la cosa giusta
 void usaOggetto(Eroe* e) {
-    Oggetto* ogg = pop(e);
-    if (!ogg) return;
+    if (e->inventario.top < 0) {
+        printf("Inventario vuoto!\n");
+        return;
+    }
+
+    // Mostra inventario con indici
+    printf("\n=== SCEGLI OGGETTO DA USARE ===\n");
+    for (int i = 0; i <= e->inventario.top; i++) {
+        printf("[%d] %s (valore: %d)\n", i, 
+               e->inventario.oggetti[i]->nome, 
+               e->inventario.oggetti[i]->valore);
+    }
+    printf("=================================\n");
+
+    // Chiedi scelta
+    printf("Scegli l'oggetto da usare (0-%d): ", e->inventario.top);
+    int scelta;
+    if (scanf("%d", &scelta) != 1) {
+        printf("Input non valido.\n");
+        // Pulisci input buffer
+        while (getchar() != '\n');
+        return;
+    }
+
+    if (scelta < 0 || scelta > e->inventario.top) {
+        printf("Scelta non valida.\n");
+        return;
+    }
+
+    // Rimuovi l'oggetto scelto dalla pila
+    Oggetto* ogg = e->inventario.oggetti[scelta];
+    
+    // Sposta tutti gli elementi successivi indietro di una posizione
+    for (int i = scelta; i < e->inventario.top; i++) {
+        e->inventario.oggetti[i] = e->inventario.oggetti[i + 1];
+    }
+    e->inventario.top--;
 
     printf("Hai usato: %s\n", ogg->nome);
 

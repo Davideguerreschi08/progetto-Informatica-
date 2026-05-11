@@ -54,10 +54,40 @@ static int usa_oggetto_in_combat(Eroe *eroe, Mostro *mostro)
         printf("  Inventario vuoto!\n");
         return 0;
     }
-    mostraInventario(eroe);
-    printf("  (l'oggetto in cima alla pila verra' usato automaticamente)\n");
-    Oggetto *ogg = pop(eroe);
-    if (!ogg) return 0;
+
+    // Mostra inventario con indici
+    printf("  === SCEGLI OGGETTO DA USARE IN COMBATTIMENTO ===\n");
+    for (int i = 0; i <= eroe->inventario.top; i++) {
+        printf("  [%d] %s (valore: %d)\n", i, 
+               eroe->inventario.oggetti[i]->nome, 
+               eroe->inventario.oggetti[i]->valore);
+    }
+    printf("  ================================================\n");
+
+    // Chiedi scelta
+    printf("  Scegli l'oggetto da usare (0-%d): ", eroe->inventario.top);
+    int scelta;
+    if (scanf("%d", &scelta) != 1) {
+        printf("  Input non valido.\n");
+        // Pulisci input buffer
+        while (getchar() != '\n');
+        return 0;
+    }
+
+    if (scelta < 0 || scelta > eroe->inventario.top) {
+        printf("  Scelta non valida.\n");
+        return 0;
+    }
+
+    // Rimuovi l'oggetto scelto dalla pila
+    Oggetto* ogg = eroe->inventario.oggetti[scelta];
+    
+    // Sposta tutti gli elementi successivi indietro di una posizione
+    for (int i = scelta; i < eroe->inventario.top; i++) {
+        eroe->inventario.oggetti[i] = eroe->inventario.oggetti[i + 1];
+    }
+    eroe->inventario.top--;
+
     printf("  Hai usato: %s\n", ogg->nome);
     switch (ogg->tipo) {
         case POZIONE:
