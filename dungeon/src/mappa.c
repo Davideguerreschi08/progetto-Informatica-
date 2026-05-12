@@ -22,7 +22,7 @@ static const char MAPPA_TERMINALE[MAPPA_RIGHE_T][MAPPA_COLONNE_T + 1] = {
     "I###############   ##########                       #   #    I",
     "I#                          #                       #   #    I",
     "I###############   ##########                       #   #####I",
-    "I              #   #                                #        ]",
+    "I              #   #                                #         ",
     "I              #   #                                #   #####I",
     "I              #   #             ##########         #   #    I",
     "I              #   #             #        #         #   #    I",
@@ -145,9 +145,9 @@ Stanza *costruisci_mappa(void)
 
     s1->mostro = nuovo_mostro("Goblin",        GOBLIN,    18,  6, 2,  20,  10);
     s3->mostro = nuovo_mostro("Scheletro",     SCHELETRO, 25,  8, 3,  30,  15);
-    s4->mostro = nuovo_mostro("Mago oscuro",   MAGO,      32, 10, 4,  40,  20);
+    s4->mostro = nuovo_mostro("Mago nero",   MAGO,      32, 10, 4,  40,  20);
     s5->mostro = nuovo_mostro("Demone minore", DEMONE,    40, 12, 5,  50,  25);
-    s7->mostro = nuovo_mostro("Drago nero",    BOSS,      80, 14, 6, 150, 100);
+    s7->mostro = nuovo_mostro("Drago nero ochhi rossi",    BOSS,      80, 14, 6, 150, 100);
 
     return s0;
 }
@@ -218,7 +218,7 @@ static const ElementoMappa ELEMENTI[] = {
     { 14, 17, 'M',  5, 1 },
     {14, 54, 'M',  6, 0 },
     {23, 25, 'M',  7, 1 },
-    
+    {12, 61, '[',  0, 0 },
     {-1, -1, '\0', -1, -1}
 };
 
@@ -236,6 +236,7 @@ static char simbolo_oggetto_stanza(int stanza_id)
         case ARMATURA:       return 'R';
         case TORCIA:         return 'T';
         case AMULETO:        return 'O';
+        case PORTA:          return '[';
         default:             return 'o';
     }
 }

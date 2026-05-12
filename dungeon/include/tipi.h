@@ -30,7 +30,8 @@ typedef enum {
     CHIAVE,
     TORCIA,
     BOMBA,
-    AMULETO
+    AMULETO,
+    PORTA
 } TipoOggetto;
 
 // Stesso concetto, ma per i nemici.
