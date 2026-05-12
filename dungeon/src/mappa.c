@@ -22,7 +22,7 @@ static const char MAPPA_TERMINALE[MAPPA_RIGHE_T][MAPPA_COLONNE_T + 1] = {
     "I###############   ##########                       #   #    I",
     "I#                          #                       #   #    I",
     "I###############   ##########                       #   #####I",
-    "I              #   #                                #        I",
+    "I              #   #                                #        ]",
     "I              #   #                                #   #####I",
     "I              #   #             ##########         #   #    I",
     "I              #   #             #        #         #   #    I",
@@ -208,16 +208,17 @@ typedef struct {
 } ElementoMappa;
 
 static const ElementoMappa ELEMENTI[] = {
-    { 2, 15, 'P',  0, 0 },
-    { 7, 17, 'M',  1, 1 },
-    { 8, 17, 'K',  1, 0 },
-    {10,  5, 'o',  2, 0 },
-    {10, 40, 'M',  3, 1 },
-    { 2, 45, 'M',  4, 1 },
-    { 2, 50, 'B',  4, 0 },
-    { 5,  7, 'M',  5, 1 },
-    {14, 54, 'V',  6, 0 },
-    {23, 30, 'M',  7, 1 },
+    { 5, 50, 'P',  0, 0 },
+    { 6, 17, 'M',  1, 1 },
+    {10, 26, 'K',  1, 0 },
+    {2,  11, 'O',  2, 0 },
+    {10, 24, 'M',  3, 1 },
+    { 2, 27, 'M',  4, 1 }, //22 elementi totali
+    { 5, 42, 'T',  4, 0 },
+    { 14, 17, 'M',  5, 1 },
+    {14, 54, 'M',  6, 0 },
+    {23, 25, 'M',  7, 1 },
+    
     {-1, -1, '\0', -1, -1}
 };
 
@@ -234,7 +235,7 @@ static char simbolo_oggetto_stanza(int stanza_id)
         case ARMA:           return 'A';
         case ARMATURA:       return 'R';
         case TORCIA:         return 'T';
-        case AMULETO:        return 'o';
+        case AMULETO:        return 'O';
         default:             return 'o';
     }
 }

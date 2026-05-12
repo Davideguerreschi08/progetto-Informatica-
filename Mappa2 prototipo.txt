@@ -1,0 +1,25 @@
+I—-----------------------------------------------------------I  1       # = Muro
+I                                                            I  2       S = Spaw/Inizio
+I                                                            I  3       M = Mostro     
+I                                                            I  4       O = Oggetto
+I                                                            I  5       B = Baule
+I                                                            I  6       T = Trappola
+I                                                            I  7       & = Giocatore
+I                                                            I  8       P = Pozione
+I                                                            I  9       C = Chiave
+I                                                            I  10
+I                                                            I  11
+I                                                            I  12
+[                                                            I  13
+I                                                            I  14
+I                                                            I  15
+I                                                            I  16
+I                                                            I  17
+I                                                            I  18
+I                                                            I  19
+I                                                            I  20
+I                                                            I  21
+I                                                            I  22
+I                                                            I  23
+I                                                            I  24     
+I------------------------------------------------------------I  25      62-25
