@@ -4,8 +4,8 @@
 #include <string.h>
 #include "../include/eroe.h"
 
-#define NUM_LIVELLI 5 //livelli di tutto il gioco
-const int livEXP[NUM_LIVELLI] = {0, 50, 120, 250, 500};
+#define NUM_LIVELLI 5 // livelli di tutto il gioco
+const int livEXP[NUM_LIVELLI] = {0, 100, 200, 300, 400};
 
 // Crea un nuovo eroe
 // In crea_eroe, aggiungi la posizione iniziale sulla mappa visiva:
@@ -16,6 +16,7 @@ Eroe* crea_eroe(const char* nome) {
     e->hp_max = 100;
     e->attacco = 10;
     e->difesa = 5;
+    e->bonus_danno = 0;
     e->xp = 0;
     e->livello = 1;
     e->oro = 0;
@@ -89,11 +90,10 @@ void usaOggetto(Eroe* e) {
             free(ogg);
             break;
 
-        case AMULETO:
-            e->hp_max += ogg->valore;
-            e->hp     += ogg->valore;
-            printf("HP massimi aumentati a %d!\n", e->hp_max);
-            free(ogg);
+        case AMULETO_FORZA:
+        case AMULETO_DIFESA:
+            printf("Gli amuleti si usano solo durante un combattimento!\n");
+            push(e, ogg);
             break;
 
         case BOMBA:
@@ -167,12 +167,14 @@ void aggiungiXP(Eroe* e, int xp) {
     e->xp += xp;
     printf("Hai guadagnato %d XP!\n", xp);
 
-    while (e->livello < NUM_LIVELLI - 1 && e->xp >= livEXP[e->livello + 1]) {
+    while (e->livello < NUM_LIVELLI - 1 && e->xp >= livEXP[e->livello]) {
         e->livello++;
-        e->hp_max += 10;
-        e->attacco += 2;
+        e->hp_max += 5;
+        e->bonus_danno += 3;
         e->hp = e->hp_max;
-        printf("** NUOVO LIVELLO! Ora sei a livello %d **\n", e->livello);
+        printf("** Hai raggiunto il livello %d! **\n", e->livello);
+        printf("** HP massimi +5 = %d, danno aggiuntivo +3 = %d **\n",
+               e->hp_max, e->bonus_danno);
     }
 }
 

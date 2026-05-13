@@ -120,6 +120,16 @@ static int usa_oggetto_in_combat(Eroe *eroe, Mostro *mostro)
             printf("  Equipaggi l'armatura! Difesa: %d\n", eroe->difesa);
             free(ogg);
             break;
+        case AMULETO_FORZA:
+            eroe->bonus_danno += 6 * ogg->valore;
+            printf("  Amuleto della forza livello %d! Danno aumentato di %d!\n", ogg->valore, 6 * ogg->valore);
+            free(ogg);
+            break;
+        case AMULETO_DIFESA:
+            eroe->difesa += 4 * ogg->valore;
+            printf("  Amuleto della difesa livello %d! Difesa aumentata di %d!\n", ogg->valore, 4 * ogg->valore);
+            free(ogg);
+            break;
         default:
             printf("  Non puoi usare questo oggetto in combattimento!\n");
             push(eroe, ogg);
@@ -136,6 +146,19 @@ static void mostro_sconfitto(Eroe *eroe, Mostro *mostro)
     printf("  Guadagni %d XP e %d oro!\n", mostro->xp_ricompensa, mostro->oro_ricompensa);
     aggiungiXP(eroe, mostro->xp_ricompensa);
     eroe->oro += mostro->oro_ricompensa;
+
+    if (mostro->tipo == BOSS && eroe->stanza_corrente) {
+        Oggetto *pozione = malloc(sizeof(Oggetto));
+        if (pozione) {
+            strncpy(pozione->nome, "Pozione di cura", MAX_NOME);
+            pozione->nome[MAX_NOME - 1] = '\0';
+            pozione->tipo = POZIONE;
+            pozione->valore = 20;
+            pozione->next = eroe->stanza_corrente->oggetti;
+            eroe->stanza_corrente->oggetti = pozione;
+            printf("  Il boss lascia una Pozione di cura!\n");
+        }
+    }
 }
 
 static void eroe_sconfitto(Eroe *eroe)
@@ -151,6 +174,7 @@ void inizia_combattimento(Eroe *eroe, Mostro *mostro)
         return;
     }
 
+    eroe->bonus_danno = 0;
     printf("\n  *** Un %s ti blocca la strada! ***\n", mostro->nome);
     char input[16];
 
@@ -165,7 +189,7 @@ void inizia_combattimento(Eroe *eroe, Mostro *mostro)
         switch (scelta) {
 
             case 1: {
-                int danno = (rand() % eroe->attacco) + 1 - mostro->difesa;
+                int danno = (rand() % 10) + 1 + eroe->bonus_danno - mostro->difesa;
                 if (danno < 1) danno = 1;
                 mostro->hp -= danno;
                 printf("  %s attacca e infligge %d danni a %s!\n",

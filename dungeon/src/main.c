@@ -131,6 +131,26 @@ static void prendi_oggetto(Eroe *eroe, const char *nome)
     printf("Non c'e' nessun oggetto chiamato '%s' qui.\n", nome);
 }
 
+static int trova_indice_chiave(Eroe *eroe)
+{
+    if (!eroe) return -1;
+    for (int i = 0; i <= eroe->inventario.top; i++) {
+        if (eroe->inventario.oggetti[i]->tipo == CHIAVE)
+            return i;
+    }
+    return -1;
+}
+
+static Oggetto *rimuovi_oggetto_inventario(Eroe *eroe, int indice)
+{
+    if (!eroe || indice < 0 || indice > eroe->inventario.top) return NULL;
+    Oggetto *ogg = eroe->inventario.oggetti[indice];
+    for (int i = indice; i < eroe->inventario.top; i++)
+        eroe->inventario.oggetti[i] = eroe->inventario.oggetti[i + 1];
+    eroe->inventario.top--;
+    return ogg;
+}
+
 static void esegui_comando(TipoComando cmd, const char *argomento,
                            Eroe *eroe, bool *partita_vinta)
 {
@@ -163,6 +183,36 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
             controlla_oggetto(eroe);
             controlla_incontro(eroe, partita_vinta);
 
+        } else if (porta_chiusa_in(nr, nc)) {
+            int idx = trova_indice_chiave(eroe);
+            if (idx >= 0) {
+                char risposta[8];
+                printf("La porta e' bloccata. Vuoi usare una chiave per aprirla? (s/n): ");
+                if (fgets(risposta, sizeof risposta, stdin) &&
+                    (tolower((unsigned char)risposta[0]) == 's')) {
+                    Oggetto *chiave = rimuovi_oggetto_inventario(eroe, idx);
+                    if (chiave) free(chiave);
+                    apri_porta_in(nr, nc);
+                    printf("Hai sbloccato la porta con la chiave.\n");
+
+                    eroe->pos_riga = nr;
+                    eroe->pos_col  = nc;
+                    int id = stanza_id_per_posizione(nr, nc);
+                    if (id >= 0 && id < num_stanze) {
+                        Stanza *nuova = tutte_stanze[id];
+                        if (nuova && nuova != eroe->stanza_corrente) {
+                            cambiaStanza(&eroe->stanza_corrente, nuova);
+                            nuova->visitata = true;
+                        }
+                    }
+                    controlla_oggetto(eroe);
+                    controlla_incontro(eroe, partita_vinta);
+                } else {
+                    printf("La porta resta bloccata.\n");
+                }
+            } else {
+                printf("La porta e' bloccata. Ti serve una chiave.\n");
+            }
         } else {
             printf("Muro! Non puoi andare in quella direzione.\n");
         }

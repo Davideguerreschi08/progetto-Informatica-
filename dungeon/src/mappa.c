@@ -5,6 +5,9 @@
 
 #define MAPPA_RIGHE_T   26
 #define MAPPA_COLONNE_T 62
+#define MAX_ELEMENTI_MAPPA 32
+
+static unsigned char porta_aperta[MAX_ELEMENTI_MAPPA];
 
 Stanza *tutte_stanze[MAX_STANZE];
 int num_stanze = 0;
@@ -105,6 +108,7 @@ static void collega_stanze(Stanza *da, Stanza *a, const char *dir)
 
 Stanza *costruisci_mappa(void)
 {
+    memset(porta_aperta, 0, sizeof porta_aperta);
     num_stanze = 0;
     Stanza *s0 = nuova_stanza(0, "Sala Iniziale",        "Un ingresso illuminato da torce consumate.");
     Stanza *s1 = nuova_stanza(1, "Corridoio Est",        "Un corridoio stretto e umido.");
@@ -139,7 +143,7 @@ Stanza *costruisci_mappa(void)
 
     aggiungi_oggetto(s0, nuovo_oggetto("Pozione di cura",      POZIONE,        20));
     aggiungi_oggetto(s1, nuovo_oggetto("Chiave arrugginita",   CHIAVE,          0));
-    aggiungi_oggetto(s2, nuovo_oggetto("Amuleto del coraggio", AMULETO,         5));
+    aggiungi_oggetto(s2, nuovo_oggetto("Amuleto della forza", AMULETO_FORZA, 1));
     aggiungi_oggetto(s4, nuovo_oggetto("Bomba",                BOMBA,          30));
     aggiungi_oggetto(s6, nuovo_oggetto("Pozione velenosa",     POZIONE_VELENO, 15));
 
@@ -171,10 +175,14 @@ void distruggi_mappa(Stanza **stanze, int n)
     num_stanze = 0;
 }
 
+static int indice_porta_a(int r, int c);
+
 int e_calpestabile(int r, int c)
 {
     if (r < 0 || r >= MAPPA_RIGHE_T) return 0;
     if (c < 0 || c >= MAPPA_COLONNE_T) return 0;
+    int i = indice_porta_a(r, c);
+    if (i >= 0) return porta_aperta[i] ? 1 : 0;
     return MAPPA_TERMINALE[r][c] == ' ';
 }
 
@@ -204,23 +212,49 @@ typedef struct {
     int  r, c;
     char simbolo;
     int  stanza_id;
-    int  tipo;
+    int  tipo; /* 0 = oggetto (simbolo dalla lista stanza), 1 = mostro, 2 = porta */
 } ElementoMappa;
 
+#define EL_OGGETTO 0
+#define EL_MOSTRO  1
+#define EL_PORTA   2
+
 static const ElementoMappa ELEMENTI[] = {
-    { 5, 50, 'P',  0, 0 },
-    { 6, 17, 'M',  1, 1 },
-    {10, 26, 'K',  1, 0 },
-    {2,  11, 'O',  2, 0 },
-    {10, 24, 'M',  3, 1 },
-    { 2, 27, 'M',  4, 1 }, //22 elementi totali
-    { 5, 42, 'T',  4, 0 },
-    { 14, 17, 'M',  5, 1 },
-    {14, 54, 'M',  6, 0 },
-    {23, 25, 'M',  7, 1 },
-    {12, 61, '[',  0, 0 },
+    { 5, 50, 'P',  0, EL_OGGETTO },
+    { 6, 17, 'M',  1, EL_MOSTRO },
+    {10, 26, 'K',  1, EL_OGGETTO },
+    {2,  11, 'O',  2, EL_OGGETTO },
+    {10, 24, 'M',  3, EL_MOSTRO },
+    { 2, 27, 'M',  4, EL_MOSTRO },
+    { 5, 42, 'T',  4, EL_OGGETTO },
+    { 14, 17, 'M',  5, EL_MOSTRO },
+    {14, 54, 'M',  6, EL_MOSTRO },
+    {23, 25, 'M',  7, EL_MOSTRO },
+    {12, 61, '[',  0, EL_PORTA },
     {-1, -1, '\0', -1, -1}
 };
+
+static int indice_porta_a(int r, int c)
+{
+    for (int i = 0; ELEMENTI[i].r != -1; i++) {
+        if (ELEMENTI[i].tipo != EL_PORTA) continue;
+        if (ELEMENTI[i].r == r && ELEMENTI[i].c == c) return i;
+    }
+    return -1;
+}
+
+int porta_chiusa_in(int r, int c)
+{
+    int i = indice_porta_a(r, c);
+    if (i < 0 || i >= MAX_ELEMENTI_MAPPA) return 0;
+    return porta_aperta[i] ? 0 : 1;
+}
+
+void apri_porta_in(int r, int c)
+{
+    int i = indice_porta_a(r, c);
+    if (i >= 0 && i < MAX_ELEMENTI_MAPPA) porta_aperta[i] = 1;
+}
 
 static char simbolo_oggetto_stanza(int stanza_id)
 {
@@ -234,9 +268,8 @@ static char simbolo_oggetto_stanza(int stanza_id)
         case BOMBA:          return 'B';
         case ARMA:           return 'A';
         case ARMATURA:       return 'R';
-        case TORCIA:         return 'T';
-        case AMULETO:        return 'O';
-        case PORTA:          return '[';
+        case AMULETO_FORZA:  return 'F';
+        case AMULETO_DIFESA: return 'D';
         default:             return 'o';
     }
 }
@@ -296,11 +329,19 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe)
         int  c   = ELEMENTI[i].c;
         int  sid = ELEMENTI[i].stanza_id;
         int  t   = ELEMENTI[i].tipo;
+
+        if (t == EL_PORTA) {
+            if (i < MAX_ELEMENTI_MAPPA && !porta_aperta[i])
+                buf[r][c] = ELEMENTI[i].simbolo;
+            continue;
+        }
+
         if (sid < 0 || sid >= n || !stanze[sid]) continue;
-        if (t == 1) {
+
+        if (t == EL_MOSTRO) {
             if (stanze[sid]->mostro && stanze[sid]->mostro->vivo)
                 buf[r][c] = 'M';
-        } else {
+        } else if (t == EL_OGGETTO) {
             char s = simbolo_oggetto_stanza(sid);
             if (s != '\0')
                 buf[r][c] = s;
@@ -326,8 +367,8 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe)
                 case 2:  printf("  | HP:  %3d/%3d    |", eroe->hp, eroe->hp_max); break;
                 case 3:  printf("  | Livello: %-5d  |", eroe->livello); break;
                 case 4:  printf("  | XP:  %-8d  |", eroe->xp); break;
-                case 5:  printf("  | Attacco: %-5d  |", eroe->attacco); break;
-                case 6:  printf("  | Difesa:  %-5d  |", eroe->difesa); break;
+                case 5:  printf("  | Att. agg.: %-5d |" , eroe->bonus_danno); break;
+                case 6:  printf("  | Difesa:  %-5d  |" , eroe->hp_max); break;
                 case 7:  printf("  | Oro: %-8d  |", eroe->oro); break;
                 case 8:  printf("  | Inv: %2d/%2d item |",
                                 eroe->inventario.top + 1, MAX_INVENTARIO); break;
@@ -341,8 +382,9 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe)
                 case 16: printf("  B = Bomba"); break;
                 case 17: printf("  A = Arma"); break;
                 case 18: printf("  R = Armatura"); break;
-                case 19: printf("  o = Amuleto"); break;
-                case 20: printf("  T = Torcia"); break;
+                case 19: printf("  F = Amuleto forza"); break;
+                case 20: printf("  D = Amuleto difesa"); break;
+                case 21: printf("  [ = Porta"); break;
                 default: break;
             }
         }

@@ -7,4 +7,3 @@ cd /workspaces/progetto-Informatica-/dungeon
 gcc -o dungeon_game src/*.c -I include/
 ./dungeon_game
 d
-cd /workspaces/progetto-Informatica-/dungeon && gcc -o dungeon_game src/*.c -I include/ && ./dungeon_game

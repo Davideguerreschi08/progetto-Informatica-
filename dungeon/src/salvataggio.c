@@ -10,8 +10,7 @@ typedef struct {
     int         hp;
     int         hp_max;
     int         attacco;
-    int         difesa;
-    int         xp;
+    int         difesa;    int         bonus_danno;    int         xp;
     int         livello;
     int         oro;
     int         stanza_id;
@@ -121,6 +120,7 @@ int salva_partita(Eroe* eroe, Stanza* stanza_corrente, const char* filename)
     s.hp_max   = eroe->hp_max;
     s.attacco  = eroe->attacco;
     s.difesa   = eroe->difesa;
+    s.bonus_danno = eroe->bonus_danno;
     s.xp       = eroe->xp;
     s.livello  = eroe->livello;
     s.oro      = eroe->oro;
@@ -169,8 +169,23 @@ int carica_partita(Eroe* eroe, Stanza** stanza_corrente, const char* filename)
     eroe->hp_max  = s.hp_max;
     eroe->attacco = s.attacco;
     eroe->difesa  = s.difesa;
+    eroe->bonus_danno = s.bonus_danno;
     eroe->xp      = s.xp;
     eroe->livello = s.livello;
+
+    // Ricalcola livello basato su XP, nel caso la partita sia stata salvata con livelli vecchi
+    int livello_calcolato = 1;
+    for (int i = 0; i < NUM_LIVELLI; i++) {
+        if (eroe->xp >= livEXP[i]) livello_calcolato = i + 1;
+    }
+    if (livello_calcolato > eroe->livello) {
+        eroe->livello = livello_calcolato;
+        eroe->hp_max = 100 + 5 * (livello_calcolato - 1);
+        eroe->bonus_danno = 3 * (livello_calcolato - 1);
+        eroe->hp = eroe->hp_max;  // ripristina HP al massimo
+        printf("Livello aggiornato a %d basato su XP!\n", livello_calcolato);
+    }
+
     eroe->oro     = s.oro;
     eroe->pos_riga = s.pos_riga;
     eroe->pos_col  = s.pos_col;

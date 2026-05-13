@@ -3,6 +3,9 @@
 
 #include "tipi.h"
 
+#define NUM_LIVELLI 5
+extern const int livEXP[];
+
 // Funzioni per gestire l'inventario (pila)
 void push(Eroe* e, Oggetto* obj);
 Oggetto* pop(Eroe* e);

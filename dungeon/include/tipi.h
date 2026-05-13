@@ -28,10 +28,9 @@ typedef enum {
     ARMA,
     ARMATURA,
     CHIAVE,
-    TORCIA,
     BOMBA,
-    AMULETO,
-    PORTA
+    AMULETO_FORZA,
+    AMULETO_DIFESA
 } TipoOggetto;
 
 // Stesso concetto, ma per i nemici.
@@ -147,6 +146,7 @@ typedef struct {
     int    hp_max;
     int    attacco;
     int    difesa;
+    int    bonus_danno;
     int    xp;
     int    livello;
     int    oro;
