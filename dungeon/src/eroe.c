@@ -184,7 +184,7 @@ void stampa_stato(Eroe* e) {
     printf("Nome: %s\n", e->nome);
     printf("HP: %d/%d\n", e->hp, e->hp_max);
     printf("Livello: %d | XP: %d\n", e->livello, e->xp);
-    printf("Attacco: %d | Difesa: %d\n", e->attacco, e->difesa);
+    printf("Att. agg.: %d | Difesa: %d\n", e->bonus_danno, e->hp_max);
     printf("Oro: %d\n", e->oro);
     if (e->stanza_corrente != NULL) {
         printf("Stanza: %s\n", e->stanza_corrente->nome);
