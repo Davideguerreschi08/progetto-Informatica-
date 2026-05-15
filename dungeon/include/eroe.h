@@ -11,9 +11,6 @@ void push(Eroe* e, Oggetto* obj);
 Oggetto* pop(Eroe* e);
 void mostraInventario(Eroe* e);
 
-// Funzioni per movimento del personaggio
-void cambiaStanza(Stanza** stanzaCorrente, Stanza* nuovaStanza);
-
 // Funzioni per incremento exp e livelli
 void aggiungiXP(Eroe* e, int xp);
 

@@ -17,28 +17,23 @@ static void prendi_oggetto(Eroe *eroe, const char *nome);
 static void controlla_incontro(Eroe *eroe, bool *partita_vinta)
 {
     if (!eroe) return;
-    Stanza *s = NULL;
-    if (!mostro_in_posizione(eroe->pos_riga, eroe->pos_col, &s)) return;
+    Mostro *m = mostro_in_posizione(eroe->pos_riga, eroe->pos_col);
+    if (!m) return;
 
     printf("\n  *** Sei finito sopra un %s! Lo scontro inizia! ***\n",
-           s->mostro->nome);
-    eroe->stanza_corrente = s;
-    stampa_mappa(tutte_stanze, num_stanze, s, eroe);
-    inizia_combattimento(eroe, s->mostro);
+           m->nome);
+    stampa_mappa(eroe);
+    inizia_combattimento(eroe, m);
 
-    if (s->mostro->tipo == BOSS && !s->mostro->vivo)
+    if (m->tipo == BOSS && !m->vivo)
         *partita_vinta = true;
 }
 
 static void controlla_oggetto(Eroe *eroe)
 {
     if (!eroe) return;
-    Stanza *s = NULL;
-    if (!oggetto_in_posizione(eroe->pos_riga, eroe->pos_col, &s)) return;
-
-    Oggetto *ogg = s->oggetti;
-    s->oggetti = ogg->next;
-    ogg->next = NULL;
+    Oggetto *ogg = rimuovi_oggetto_da_posizione(eroe->pos_riga, eroe->pos_col);
+    if (!ogg) return;
 
     printf("\n  *** Hai trovato: %s! ***\n", ogg->nome);
     push(eroe, ogg);
@@ -49,9 +44,7 @@ int main(void)
     srand((unsigned int)time(NULL));
 
     Eroe *eroe = crea_eroe("Avventuriero");
-    Stanza *iniziale = costruisci_mappa();
-    eroe->stanza_corrente = iniziale;
-    if (iniziale) iniziale->visitata = true;
+    costruisci_mappa();
 
     bool partita_vinta = false;
     char input[MAX_INPUT];
@@ -63,7 +56,7 @@ int main(void)
     printf("Movimento: W=Nord  S=Sud  A=Ovest  D=Est\n");
     printf("Comandi:   usa, inventario, salva, carica\n\n");
 
-    stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
+    stampa_mappa(eroe);
 
     while (eroe->hp > 0 && !partita_vinta) {
         printf("> ");
@@ -72,7 +65,7 @@ int main(void)
         TipoComando cmd = parse_comando(input, argomento);
         esegui_comando(cmd, argomento, eroe, &partita_vinta);
 
-        stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
+        stampa_mappa(eroe);
     }
 
     if (partita_vinta)
@@ -80,7 +73,7 @@ int main(void)
     else
         printf("\nPartita terminata.\n");
 
-    distruggi_mappa(tutte_stanze, num_stanze);
+    distruggi_mappa();
     free(eroe);
     return 0;
 }
@@ -110,23 +103,19 @@ static TipoComando parse_comando(const char *input, char *argomento)
 
 static void prendi_oggetto(Eroe *eroe, const char *nome)
 {
-    Stanza *s = eroe->stanza_corrente;
-    if (!s || !nome || nome[0] == '\0') {
+    if (!eroe || !nome || nome[0] == '\0') {
         printf("Specifica un oggetto da prendere.\n");
         return;
     }
-    Oggetto **ptr = &s->oggetti;
-    while (*ptr) {
-        if (strcmp((*ptr)->nome, nome) == 0) {
-            Oggetto *ogg = *ptr;
-            *ptr = ogg->next;
-            ogg->next = NULL;
-            push(eroe, ogg);
-            return;
-        }
-        ptr = &(*ptr)->next;
+
+    Oggetto *ogg = oggetto_in_posizione(eroe->pos_riga, eroe->pos_col);
+    if (!ogg || strcmp(ogg->nome, nome) != 0) {
+        printf("Non c'e' nessun oggetto chiamato '%s' qui.\n", nome);
+        return;
     }
-    printf("Non c'e' nessun oggetto chiamato '%s' qui.\n", nome);
+
+    rimuovi_oggetto_da_posizione(eroe->pos_riga, eroe->pos_col);
+    push(eroe, ogg);
 }
 
 static int trova_indice_chiave(Eroe *eroe)
@@ -168,16 +157,6 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         if (e_calpestabile(nr, nc)) {
             eroe->pos_riga = nr;
             eroe->pos_col  = nc;
-
-            int id = stanza_id_per_posizione(nr, nc);
-            if (id >= 0 && id < num_stanze) {
-                Stanza *nuova = tutte_stanze[id];
-                if (nuova && nuova != eroe->stanza_corrente) {
-                    cambiaStanza(&eroe->stanza_corrente, nuova);
-                    nuova->visitata = true;
-                }
-            }
-
             controlla_oggetto(eroe);
             controlla_incontro(eroe, partita_vinta);
 
@@ -195,14 +174,6 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
 
                     eroe->pos_riga = nr;
                     eroe->pos_col  = nc;
-                    int id = stanza_id_per_posizione(nr, nc);
-                    if (id >= 0 && id < num_stanze) {
-                        Stanza *nuova = tutte_stanze[id];
-                        if (nuova && nuova != eroe->stanza_corrente) {
-                            cambiaStanza(&eroe->stanza_corrente, nuova);
-                            nuova->visitata = true;
-                        }
-                    }
                     controlla_oggetto(eroe);
                     controlla_incontro(eroe, partita_vinta);
                 } else {
@@ -235,7 +206,7 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
 
     case CMD_SALVA: {
         const char *file = argomento[0] ? argomento : "partita.sav";
-        if (salva_partita(eroe, eroe->stanza_corrente, file) == 0) {
+        if (salva_partita(eroe, file) == 0) {
             // Messaggio stampato da salva_partita
         } else {
             printf("Errore durante il salvataggio.\n");
@@ -245,7 +216,7 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
 
     case CMD_CARICA: {
         const char *file = argomento[0] ? argomento : "partita.sav";
-        if (carica_partita(eroe, &eroe->stanza_corrente, file) == 0) {
+        if (carica_partita(eroe, file) == 0) {
             // Messaggio stampato da carica_partita
         } else {
             printf("Errore durante il caricamento.\n");

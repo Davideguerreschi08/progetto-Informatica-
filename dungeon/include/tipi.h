@@ -12,21 +12,17 @@
 #define MAX_NOME        64   // lunghezza massima di un nome
 #define MAX_DESCRIZIONE 256  // lunghezza massima di una descrizione
 #define MAX_INPUT      128  // lunghezza massima input utente
-#define MAX_STANZE     16   // numero massimo di stanze in mappa
 
 // ─── ENUM ─────────────────────────────────────────────────────────────────────
 
 // typedef enum funziona come typedef struct:
 // senza typedef dovresti scrivere "enum TipoOggetto tipo" ogni volta,
 // con typedef puoi scrivere solo "TipoOggetto tipo".
-// Internamente ogni valore è un numero intero:
-// POZIONE=0, POZIONE_VELENO=1, ARMA=2, ecc.
+// Internamente ogni valore è un numero intero.
 // Usiamo i nomi invece dei numeri per rendere il codice leggibile.
 typedef enum {
     POZIONE,
     POZIONE_VELENO,
-    ARMA,
-    ARMATURA,
     CHIAVE,
     BOMBA,
     AMULETO_FORZA,
@@ -66,19 +62,20 @@ typedef enum {
 // Il campo "valore" cambia significato in base al tipo:
 //   POZIONE        → quanti HP ripristina
 //   POZIONE_VELENO → quanti danni fa al nemico
-//   ARMA           → quanti danni aggiunge all'attacco
-//   BOMBA          → quanti danni fa ad area
-//   ARMATURA       → quanta difesa aggiunge
+//   CHIAVE         → apertura di porte bloccate
+//   BOMBA          → quanti danni fa al nemico
+//   AMULETO_FORZA  → aumenta il danno in combattimento
+//   AMULETO_DIFESA → aumenta la difesa in combattimento
 typedef struct Oggetto {
     char        nome[MAX_NOME];
     TipoOggetto tipo;
     int         valore;
-    struct Oggetto *next;   // lista collegata di oggetti nella stanza
+    struct Oggetto *next;   // lista collegata di oggetti
 } Oggetto;
 
 // ─── STRUCT MOSTRO ────────────────────────────────────────────────────────────
 
-// Rappresenta un nemico presente in una stanza.
+// Rappresenta un nemico sul dungeon.
 // xp_ricompensa e oro_ricompensa vengono aggiunti all'eroe
 // quando il mostro viene sconfitto.
 typedef struct Mostro {
@@ -92,33 +89,6 @@ typedef struct Mostro {
     int        oro_ricompensa;
     int        vivo;
 } Mostro;
-
-// ─── STRUCT STANZA ────────────────────────────────────────────────────────────
-
-// È il nodo del grafo. Ogni stanza conosce le stanze vicine
-// tramite quattro puntatori (nord, sud, est, ovest).
-// Se un puntatore è NULL non c'è uscita in quella direzione.
-//
-// NOTA: dentro la struct usiamo "struct Stanza *nord" e non "Stanza *nord".
-// Questo perché quando il compilatore sta leggendo la definizione di Stanza,
-// il typedef non è ancora completo — quindi "Stanza" come nome non esiste ancora.
-// "struct Stanza" invece funziona perché il compilatore sa già che
-// esiste una struttura con quel nome, anche se non ha finito di leggerla.
-typedef struct Stanza {
-    int           id;
-    char          nome[MAX_NOME];
-    char          descrizione[MAX_DESCRIZIONE];
-    bool          visitata;       // true se il giocatore ci è già entrato
-    bool          bloccata;       // true se serve una chiave per entrare
-    bool          nascosta;       // true se la stanza è nascosta
-    int           bloccata_est;   // id chiave necessaria per l'uscita est
-    Oggetto      *oggetti;        // testa della lista oggetti (NULL se vuota)
-    Mostro       *mostro;         // NULL se non c'è nessun nemico
-    struct Stanza *nord;          // puntatore alla stanza a nord (NULL se assente)
-    struct Stanza *sud;
-    struct Stanza *est;
-    struct Stanza *ovest;
-} Stanza;
 
 // ─── PILA INVENTARIO ──────────────────────────────────────────────────────────
 
@@ -136,8 +106,7 @@ typedef struct {
 // ─── STRUCT EROE ──────────────────────────────────────────────────────────────
 
 // Contiene tutto lo stato del giocatore.
-// "stanza_corrente" è il puntatore alla stanza dove si trova l'eroe:
-// quando si muove, aggiorniamo solo questo puntatore — non copiamo niente.
+// La posizione dell'eroe viene memorizzata come coordinate sulla mappa.
 typedef struct {
     char   nome[MAX_NOME];
     int    hp;
@@ -149,9 +118,8 @@ typedef struct {
     int    livello;
     int    oro;
     Pila   inventario;
-    Stanza *stanza_corrente;
-    int    pos_riga;   // ← NUOVO: posizione sulla mappa visiva
-    int    pos_col;    // ← NUOVO
+    int    pos_riga;   // posizione sulla mappa visiva
+    int    pos_col;
 } Eroe;
 
 #endif  // fine include guard — tutto sopra viene incluso una volta sola

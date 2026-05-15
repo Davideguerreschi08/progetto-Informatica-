@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "../include/combattimento.h"
 #include "../include/eroe.h"
+#include "../include/mappa.h"
 
 static void stampa_barra_hp(int hp, int hp_max, int larghezza)
 {
@@ -110,16 +111,6 @@ static int usa_oggetto_in_combat(Eroe *eroe, Mostro *mostro)
             free(ogg);
             break;
         }
-        case ARMA:
-            eroe->attacco += ogg->valore;
-            printf("  Equipaggi l'arma al volo! Attacco: %d\n", eroe->attacco);
-            free(ogg);
-            break;
-        case ARMATURA:
-            eroe->difesa += ogg->valore;
-            printf("  Equipaggi l'armatura! Difesa: %d\n", eroe->difesa);
-            free(ogg);
-            break;
         case AMULETO_FORZA:
             eroe->bonus_danno += 6 * ogg->valore;
             printf("  Amuleto della forza livello %d! Danno aumentato di %d!\n", ogg->valore, 6 * ogg->valore);
@@ -147,15 +138,15 @@ static void mostro_sconfitto(Eroe *eroe, Mostro *mostro)
     aggiungiXP(eroe, mostro->xp_ricompensa);
     eroe->oro += mostro->oro_ricompensa;
 
-    if (mostro->tipo == BOSS && eroe->stanza_corrente) {
+    if (mostro->tipo == BOSS) {
         Oggetto *pozione = malloc(sizeof(Oggetto));
         if (pozione) {
             strncpy(pozione->nome, "Pozione di cura", MAX_NOME);
             pozione->nome[MAX_NOME - 1] = '\0';
             pozione->tipo = POZIONE;
             pozione->valore = 20;
-            pozione->next = eroe->stanza_corrente->oggetti;
-            eroe->stanza_corrente->oggetti = pozione;
+            pozione->next = NULL;
+            aggiungi_oggetto_in_posizione(eroe->pos_riga, eroe->pos_col, pozione);
             printf("  Il boss lascia una Pozione di cura!\n");
         }
     }

@@ -21,7 +21,6 @@ Eroe* crea_eroe(const char* nome) {
     e->livello = 1;
     e->oro = 0;
     e->inventario.top = -1;
-    e->stanza_corrente = NULL;
     e->pos_riga = 2;   // ← NUOVO: posizione di spawn sulla mappa
     e->pos_col  = 5;   // ← NUOVO
     return e;
@@ -76,18 +75,6 @@ void usaOggetto(Eroe* e) {
             if (e->hp > e->hp_max) e->hp = e->hp_max;
             printf("Recuperi %d HP. HP: %d/%d\n", ogg->valore, e->hp, e->hp_max);
             free(ogg);  // consumato, libera memoria
-            break;
-
-        case ARMA:
-            e->attacco += ogg->valore;
-            printf("Equipaggi l'arma. Attacco: %d\n", e->attacco);
-            free(ogg);
-            break;
-
-        case ARMATURA:
-            e->difesa += ogg->valore;
-            printf("Equipaggi l'armatura. Difesa: %d\n", e->difesa);
-            free(ogg);
             break;
 
         case AMULETO_FORZA:
@@ -152,16 +139,6 @@ void mostraInventario(Eroe* e) {
     printf("==================\n\n");
 }
 
-// Spostamento tra stanze (movimento)
-void cambiaStanza(Stanza** stanzaCorrente, Stanza* nuovaStanza) {
-    if (nuovaStanza == NULL) {
-        printf("Non puoi andare in quella direzione!\n");
-        return;
-    }
-    *stanzaCorrente = nuovaStanza;
-    printf("Sei entrato in: %s\n", nuovaStanza->nome);
-}
-
 // Aumento di livello e XP
 void aggiungiXP(Eroe* e, int xp) {
     e->xp += xp;
@@ -186,10 +163,6 @@ void stampa_stato(Eroe* e) {
     printf("Livello: %d | XP: %d\n", e->livello, e->xp);
     printf("Att. agg.: %d | Difesa: %d\n", e->bonus_danno, e->hp_max);
     printf("Oro: %d\n", e->oro);
-    if (e->stanza_corrente != NULL) {
-        printf("Stanza: %s\n", e->stanza_corrente->nome);
-    } else {
-        printf("Stanza: Nessuna\n");
-    }
+    printf("Posizione: (%d, %d)\n", e->pos_riga, e->pos_col);
     printf("==================\n\n");
 }
