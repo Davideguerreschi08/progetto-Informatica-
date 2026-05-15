@@ -4,7 +4,7 @@ I                                                            I  3       M = Most
 I                                                            I  4       O = Oggetto
 I                                                            I  5       B = BOMBA
 I                   ######################                   I  6       T = Trappola
-I                   #     O        O     #                   I  7       & = Giocatore
+I                   #     D        F     #                   I  7       & = Giocatore
 I                 ###   #####    #####   ###                 I  8       P = Pozione
 I                 #     # P #    # V #     #                 I  9       C = Chiave
 I               ###     #   #    #   #     ###               I  10      A = Arma(casuale)
@@ -14,9 +14,9 @@ I################         M        M         #               I  12      ! = MESS
 I################         M        M         #               I  14
 I               #       #   #    #   #       #               I  15
 I               ###     #   #    #   #     ###               I  16
-I                 #     # B #    # A #     #                 I  17
+I                 #     # P #    # V #     #                 I  17
 I                 ###   #####    #####   ###                 I  18
-I                   #     O        O     #                   I  19
+I                   #     B        B     #                   I  19
 I                   ######################                   I  20
 I                                                            I  21
 I                                                            I  22
