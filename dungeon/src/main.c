@@ -25,7 +25,7 @@ static void controlla_incontro(Eroe *eroe, bool *partita_vinta)
     stampa_mappa(eroe);
     inizia_combattimento(eroe, m);
 
-    if (m->tipo == BOSS && !m->vivo)
+    if (boss_sconfitto())
         *partita_vinta = true;
 }
 

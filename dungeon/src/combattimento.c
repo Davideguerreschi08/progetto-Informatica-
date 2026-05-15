@@ -6,6 +6,8 @@
 #include "../include/eroe.h"
 #include "../include/mappa.h"
 
+static int boss_vinto = 0;
+
 static void stampa_barra_hp(int hp, int hp_max, int larghezza)
 {
     if (hp_max <= 0) hp_max = 1;
@@ -105,7 +107,7 @@ static int usa_oggetto_in_combat(Eroe *eroe, Mostro *mostro)
             break;
         }
         case POZIONE_VELENO: {
-            int danno = ogg->valore;
+            int danno = 20 + (rand() % 21);
             mostro->hp -= danno;
             printf("  Il veleno infligge %d danni a %s!\n", danno, mostro->nome);
             free(ogg);
@@ -139,17 +141,13 @@ static void mostro_sconfitto(Eroe *eroe, Mostro *mostro)
     eroe->oro += mostro->oro_ricompensa;
 
     if (mostro->tipo == BOSS) {
-        Oggetto *pozione = malloc(sizeof(Oggetto));
-        if (pozione) {
-            strncpy(pozione->nome, "Pozione di cura", MAX_NOME);
-            pozione->nome[MAX_NOME - 1] = '\0';
-            pozione->tipo = POZIONE;
-            pozione->valore = 20;
-            pozione->next = NULL;
-            aggiungi_oggetto_in_posizione(eroe->pos_riga, eroe->pos_col, pozione);
-            printf("  Il boss lascia una Pozione di cura!\n");
-        }
+        boss_vinto = 1;
     }
+}
+
+int boss_sconfitto(void)
+{
+    return boss_vinto;
 }
 
 static void eroe_sconfitto(Eroe *eroe)

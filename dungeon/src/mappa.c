@@ -62,6 +62,7 @@ static const ElementoMappa ELEMENTI[] = {
     {14, 54, 'M', EL_MOSTRO  },
     {12, 58, 'M', EL_MOSTRO  },
     {12, 61, '[', EL_PORTA   },
+    { 12, 60, 'P', EL_OGGETTO },
     {-1, -1, '\0', -1 }
 };
 
@@ -128,7 +129,8 @@ static void inizializza_elementi_mappa(void)
     oggetti_mappa[2] = nuovo_oggetto("Chiave arrugginita",   CHIAVE,          0);
     oggetti_mappa[3] = nuovo_oggetto("Amuleto della forza", AMULETO_FORZA, 1);
     oggetti_mappa[6] = nuovo_oggetto("Bomba",                BOMBA,          30);
-
+    oggetti_mappa[9] = nuovo_oggetto("Pozione di cura", POZIONE, 20);
+    
     mostri_mappa[1] = nuovo_mostro("Goblin",        GOBLIN,    18,  6, 2,  20,  10);
     mostri_mappa[4] = nuovo_mostro("Scheletro",     SCHELETRO, 25,  8, 3,  30,  15);
     mostri_mappa[5] = nuovo_mostro("Mago nero",     MAGO,      32, 10, 4,  40,  20);
