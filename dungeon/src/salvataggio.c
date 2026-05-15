@@ -37,7 +37,7 @@ static void salva_stato_stanze(FILE* file, Stanza** stanze, int num)
         if (!stanze[i]) continue;
         
         StatoStanza ss;
-        ss.mostro_vivo = (stanze[i]->mostro && stanze[i]->mostro->vivo) ? 1 : 0;
+        ss.mostro_vivo = stanze[i]->mostro && stanze[i]->mostro->vivo;
         
         // Conta gli oggetti rimanenti
         int count = 0;

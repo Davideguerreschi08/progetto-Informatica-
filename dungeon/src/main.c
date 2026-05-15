@@ -61,7 +61,7 @@ int main(void)
     printf("║       BENVENUTO NEL DUNGEON - AVVENTURA INIZIA         ║\n");
     printf("╚════════════════════════════════════════════════════════╝\n\n");
     printf("Movimento: W=Nord  S=Sud  A=Ovest  D=Est\n");
-    printf("Comandi:   guarda, usa, inventario, salva, carica\n\n");
+    printf("Comandi:   usa, inventario, salva, carica\n\n");
 
     stampa_mappa(tutte_stanze, num_stanze, eroe->stanza_corrente, eroe);
 
@@ -100,13 +100,11 @@ static TipoComando parse_comando(const char *input, char *argomento)
     }
 
     if (strcmp(comando, "vai")        == 0) return CMD_VAI;
-    if (strcmp(comando, "guarda")     == 0) return CMD_GUARDA;
     if (strcmp(comando, "prendi")     == 0) return CMD_PRENDI;
     if (strcmp(comando, "usa")        == 0) return CMD_USA;
     if (strcmp(comando, "inventario") == 0) return CMD_INVENTARIO;
     if (strcmp(comando, "salva")      == 0) return CMD_SALVA;
     if (strcmp(comando, "carica")     == 0) return CMD_CARICA;
-    if (strcmp(comando, "mappa")      == 0) return CMD_MAPPA;
     return CMD_SCONOSCIUTO;
 }
 
@@ -219,23 +217,6 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         break;
     }
 
-    case CMD_GUARDA:
-        if (eroe->stanza_corrente) {
-            printf("\n--- %s ---\n", eroe->stanza_corrente->nome);
-            printf("%s\n", eroe->stanza_corrente->descrizione);
-            if (eroe->stanza_corrente->oggetti) {
-                printf("Oggetti presenti: ");
-                for (Oggetto *o = eroe->stanza_corrente->oggetti; o; o = o->next)
-                    printf("[%s] ", o->nome);
-                printf("\n");
-            }
-            if (eroe->stanza_corrente->mostro && eroe->stanza_corrente->mostro->vivo)
-                printf("Attenzione! Qui c'e' un %s (HP: %d).\n",
-                       eroe->stanza_corrente->mostro->nome,
-                       eroe->stanza_corrente->mostro->hp);
-        }
-        break;
-
     case CMD_PRENDI:
         prendi_oggetto(eroe, argomento);
         break;
@@ -250,10 +231,6 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
 
     case CMD_INVENTARIO:
         mostraInventario(eroe);
-        break;
-
-    case CMD_MAPPA:
-        printf("La mappa e' gia' visibile!\n");
         break;
 
     case CMD_SALVA: {
@@ -278,7 +255,7 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
 
     default:
         printf("Comando non riconosciuto.\n");
-        printf("Usa: W/A/S/D, guarda, usa, inventario, salva, carica\n");
+        printf("Usa: W/A/S/D, usa, inventario, salva, carica\n");
         break;
     }
 }

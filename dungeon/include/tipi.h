@@ -51,14 +51,12 @@ typedef enum {
 // restituito quando il giocatore scrive qualcosa che non esiste.
 typedef enum {
     CMD_VAI,
-    CMD_GUARDA,
     CMD_PRENDI,
     CMD_USA,
     CMD_ATTACCA,
     CMD_INVENTARIO,
     CMD_SALVA,
     CMD_CARICA,
-    CMD_MAPPA,
     CMD_SCONOSCIUTO
 } TipoComando;
 

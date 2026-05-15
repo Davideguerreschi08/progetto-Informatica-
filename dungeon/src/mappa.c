@@ -308,7 +308,7 @@ static void stampa_comandi(void)
 {
     printf("\n");
     printf("╔════════════════════════════════════════════════════════╗\n");
-    printf("║                      COMANDI DISPONIBILI                ║\n");
+    printf("║                      COMANDI DISPONIBILI               ║\n");
     printf("╠════════════════════════════════════════════════════════╣\n");
     printf("║ Movimento: W=Nord  S=Sud  A=Ovest  D=Est               ║\n");
     printf("║ Comandi:   guarda, usa, inventario, salva, carica      ║\n");
