@@ -189,7 +189,7 @@ void inizia_combattimento(Eroe *eroe, Mostro *mostro)
         switch (scelta) {
 
             case 1: {
-                int danno = (rand() % 10) + 1 + eroe->bonus_danno - mostro->difesa;
+                int danno = (rand() % 1000) + 1 + eroe->bonus_danno - mostro->difesa;
                 if (danno < 1) danno = 1;
                 mostro->hp -= danno;
                 printf("  %s attacca e infligge %d danni a %s!\n",

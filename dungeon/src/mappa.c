@@ -223,13 +223,13 @@ static const ElementoMappa ELEMENTI[] = {
     { 5, 50, 'P',  0, EL_OGGETTO },
     { 6, 17, 'M',  1, EL_MOSTRO },
     {10, 26, 'K',  1, EL_OGGETTO },
-    {2,  11, 'O',  2, EL_OGGETTO },
+    {2,  11, 'F',  2, EL_OGGETTO },
     {10, 24, 'M',  3, EL_MOSTRO },
     { 2, 27, 'M',  4, EL_MOSTRO },
-    { 5, 42, 'T',  4, EL_OGGETTO },
-    { 14, 17, 'M',  5, EL_MOSTRO },
+    {10, 3, 'B',  4, EL_OGGETTO },
+    {14, 17, 'M',  5, EL_MOSTRO },
     {14, 54, 'M',  6, EL_MOSTRO },
-    {23, 25, 'M',  7, EL_MOSTRO },
+    {12, 58, 'M',  7, EL_MOSTRO },
     {12, 61, '[',  0, EL_PORTA },
     {-1, -1, '\0', -1, -1}
 };
@@ -266,8 +266,6 @@ static char simbolo_oggetto_stanza(int stanza_id)
         case POZIONE_VELENO: return 'V';
         case CHIAVE:         return 'K';
         case BOMBA:          return 'B';
-        case ARMA:           return 'A';
-        case ARMATURA:       return 'R';
         case AMULETO_FORZA:  return 'F';
         case AMULETO_DIFESA: return 'D';
         default:             return 'o';
@@ -380,11 +378,9 @@ void stampa_mappa(Stanza **stanze, int n, Stanza *corrente, Eroe *eroe)
                 case 14: printf("  V = Veleno"); break;
                 case 15: printf("  K = Chiave"); break;
                 case 16: printf("  B = Bomba"); break;
-                case 17: printf("  A = Arma"); break;
-                case 18: printf("  R = Armatura"); break;
-                case 19: printf("  F = Amuleto forza"); break;
-                case 20: printf("  D = Amuleto difesa"); break;
-                case 21: printf("  [ = Porta"); break;
+                case 17: printf("  F = Amuleto forza"); break;
+                case 18: printf("  D = Amuleto difesa"); break;
+                case 19: printf("  [ = Porta"); break;
                 default: break;
             }
         }
