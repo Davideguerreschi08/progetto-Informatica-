@@ -44,7 +44,7 @@ static void stampa_schermata(Eroe *eroe, Mostro *mostro)
 
 static int turno_mostro(Eroe *eroe, Mostro *mostro)
 {
-    int danno = (rand() % mostro->attacco) + 1 - eroe->difesa;
+    int danno = (rand() % mostro->attacco) + 1 + 7 - eroe->difesa;
     if (danno < 1) danno = 1;
     eroe->hp -= danno;
     printf("  %s contrattacca e infligge %d danni!\n", mostro->nome, danno);
@@ -69,11 +69,14 @@ static int usa_oggetto_in_combat(Eroe *eroe, Mostro *mostro)
 
     // Chiedi scelta
     printf("  Scegli l'oggetto da usare (0-%d): ", eroe->inventario.top);
-    int scelta;
-    if (scanf("%d", &scelta) != 1) {
+    char scelta_buf[16];
+    if (!fgets(scelta_buf, sizeof(scelta_buf), stdin)) {
         printf("  Input non valido.\n");
-        // Pulisci input buffer
-        while (getchar() != '\n');
+        return 0;
+    }
+    int scelta;
+    if (sscanf(scelta_buf, "%d", &scelta) != 1) {
+        printf("  Input non valido.\n");
         return 0;
     }
 
@@ -178,7 +181,7 @@ void inizia_combattimento(Eroe *eroe, Mostro *mostro)
         switch (scelta) {
 
             case 1: {
-                int danno = (rand() % 1000) + 1 + eroe->bonus_danno - mostro->difesa;
+                int danno = (rand() % 10) + 1 + eroe->attacco + eroe->bonus_danno - mostro->difesa;
                 if (danno < 1) danno = 1;
                 mostro->hp -= danno;
                 printf("  %s attacca e infligge %d danni a %s!\n",

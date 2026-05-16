@@ -167,14 +167,24 @@ static void carica_elementi_mappa1(void)
                       nuovo_mostro("Demone minore", DEMONE, 40, 12, 5, 50, 25));
     aggiungi_elemento(14, 54, 'M', EL_MOSTRO,
                       NULL,
-                      nuovo_mostro("Drago nero occhi rossi", BOSS, 80, 14, 6, 150, 100));
+                      nuovo_mostro("Drago scheletro", DRAGO_SCHELETRO, 50, 11, 5, 100, 80));
     aggiungi_elemento(12, 58, 'M', EL_MOSTRO,
                       NULL,
-                      nuovo_mostro("Drago scheletro", DRAGO_SCHELETRO, 50, 11, 5, 100, 80));
+                      nuovo_mostro("Drago nero occhi rossi", DRAGO, 80, 14, 6, 150, 100));
     aggiungi_elemento(12, 61, '[', EL_PORTA, NULL, NULL);
     aggiungi_elemento(12, 60, 'P', EL_OGGETTO,
                       nuovo_oggetto("Pozione di cura", POZIONE, 20),
                       NULL);
+
+    /* Rimuoviamo i simboli degli elementi dalla mappa statica, altrimenti
+       le celle non vengono più considerate calpestabili anche quando
+       contengono mostri/oggetti. */
+    for (int i = 0; i < elementi_count; i++) {
+        int r = elementi[i].r;
+        int c = elementi[i].c;
+        if (r >= 0 && r < MAPPA_RIGHE_T && c >= 0 && c < MAPPA_COLONNE_T)
+            mappa_corrente[r][c] = ' ';
+    }
 }
 
 static void carica_elementi_mappa2(void)
@@ -186,73 +196,57 @@ static void carica_elementi_mappa2(void)
 
     spawn_r = -1;
     spawn_c = -1;
-    int scheletro_speciale = 0;
 
-    for (int r = 0; r < MAPPA_RIGHE_T; r++) {
-        for (int c = 0; c < MAPPA_COLONNE_T; c++) {
-            char ch = mappa_corrente[r][c];
-            if (ch == 'M') {
-                if (!scheletro_speciale) {
-                    aggiungi_elemento(r, c, 'M', EL_MOSTRO,
-                                      NULL,
-                                      nuovo_mostro("Drago scheletro", DRAGO_SCHELETRO, 60, 12, 6, 120, 80));
-                    scheletro_speciale = 1;
-                } else {
-                    aggiungi_elemento(r, c, 'M', EL_MOSTRO,
-                                      NULL,
-                                      nuovo_mostro("Scheletro errante", SCHELETRO, 22, 7, 3, 25, 12));
-                }
-                mappa_corrente[r][c] = ' ';
-            } else if (ch == '@') {
-                aggiungi_elemento(r, c, 'M', EL_MOSTRO,
-                                  NULL,
-                                  nuovo_mostro("Cavaliere dimenticato", BOSS, 160, 16, 10, 300, 180));
-                mappa_corrente[r][c] = ' ';
-            } else if (ch == 'P') {
-                aggiungi_elemento(r, c, 'P', EL_OGGETTO,
-                                  nuovo_oggetto("Pozione", POZIONE, 20),
-                                  NULL);
-                mappa_corrente[r][c] = ' ';
-            } else if (ch == 'B') {
-                aggiungi_elemento(r, c, 'B', EL_OGGETTO,
-                                  nuovo_oggetto("Bomba", BOMBA, 30),
-                                  NULL);
-                mappa_corrente[r][c] = ' ';
-            } else if (ch == 'V') {
-                aggiungi_elemento(r, c, 'V', EL_OGGETTO,
-                                  nuovo_oggetto("Pozione veleno", POZIONE_VELENO, 10),
-                                  NULL);
-                mappa_corrente[r][c] = ' ';
-            } else if (ch == 'K' || ch == 'C') {
-                aggiungi_elemento(r, c, 'K', EL_OGGETTO,
-                                  nuovo_oggetto("Chiave", CHIAVE, 0),
-                                  NULL);
-                mappa_corrente[r][c] = ' ';
-            } else if (ch == 'F') {
-                aggiungi_elemento(r, c, 'F', EL_OGGETTO,
-                                  nuovo_oggetto("Amuleto forza", AMULETO_FORZA, 1),
-                                  NULL);
-                mappa_corrente[r][c] = ' ';
-            } else if (ch == 'D') {
-                aggiungi_elemento(r, c, 'D', EL_OGGETTO,
-                                  nuovo_oggetto("Amuleto difesa", AMULETO_DIFESA, 1),
-                                  NULL);
-                mappa_corrente[r][c] = ' ';
-            } else if (ch == '[') {
-                aggiungi_elemento(r, c, '[', EL_PORTA, NULL, NULL);
-                mappa_corrente[r][c] = ' ';
-            } else if (ch == 'S') {
-                spawn_r = r;
-                spawn_c = c;
-                mappa_corrente[r][c] = ' ';
-            }
-        }
+    aggiungi_elemento(6, 26, 'D', EL_OGGETTO,
+                      nuovo_oggetto("Amuleto difesa", AMULETO_DIFESA, 1),
+                      NULL);
+    aggiungi_elemento(6, 35, 'F', EL_OGGETTO,
+                      nuovo_oggetto("Amuleto della forza", AMULETO_FORZA, 1),
+                      NULL);
+    aggiungi_elemento(8, 26, 'P', EL_OGGETTO,
+                      nuovo_oggetto("Pozione", POZIONE, 20),
+                      NULL);
+    aggiungi_elemento(8, 35, 'V', EL_OGGETTO,
+                      nuovo_oggetto("Pozione veleno", POZIONE_VELENO, 10),
+                      NULL);
+    aggiungi_elemento(11, 26, 'M', EL_MOSTRO,
+                      NULL,
+                      nuovo_mostro("Scheletro errante", SCHELETRO, 22, 7, 3, 25, 12));
+    aggiungi_elemento(11, 35, 'M', EL_MOSTRO,
+                      NULL,
+                      nuovo_mostro("Scheletro errante", SCHELETRO, 22, 7, 3, 25, 12));
+    aggiungi_elemento(12, 0, '[', EL_PORTA, NULL, NULL);
+    aggiungi_elemento(12, 40, 'M', EL_MOSTRO,
+                      NULL,
+                      nuovo_mostro("Cavaliere dimenticato", BOSS, 160, 16, 10, 300, 180));
+    aggiungi_elemento(13, 26, 'M', EL_MOSTRO,
+                      NULL,
+                      nuovo_mostro("Scheletro errante", SCHELETRO, 22, 7, 3, 25, 12));
+    aggiungi_elemento(13, 35, 'M', EL_MOSTRO,
+                      NULL,
+                      nuovo_mostro("Scheletro errante", SCHELETRO, 22, 7, 3, 25, 12));
+    aggiungi_elemento(16, 26, 'P', EL_OGGETTO,
+                      nuovo_oggetto("Pozione", POZIONE, 20),
+                      NULL);
+    aggiungi_elemento(16, 35, 'V', EL_OGGETTO,
+                      nuovo_oggetto("Pozione veleno", POZIONE_VELENO, 10),
+                      NULL);
+    aggiungi_elemento(18, 26, 'B', EL_OGGETTO,
+                      nuovo_oggetto("Bomba", BOMBA, 30),
+                      NULL);
+    aggiungi_elemento(18, 35, 'B', EL_OGGETTO,
+                      nuovo_oggetto("Bomba", BOMBA, 30),
+                      NULL);
+
+    for (int i = 0; i < elementi_count; i++) {
+        int r = elementi[i].r;
+        int c = elementi[i].c;
+        if (r >= 0 && r < MAPPA_RIGHE_T && c >= 0 && c < MAPPA_COLONNE_T)
+            mappa_corrente[r][c] = ' ';
     }
 
-    if (spawn_r < 0 || spawn_c < 0) {
-        spawn_r = 12;
-        spawn_c = 1;
-    }
+    spawn_r = 12;
+    spawn_c = 1;
 }
 
 static void inizializza_elementi_mappa(void)
@@ -455,6 +449,13 @@ int e_calpestabile(int r, int c)
     if (c < 0 || c >= MAPPA_COLONNE_T) return 0;
     int i = indice_porta_a(r, c);
     if (i >= 0) return porta_aperta[i] ? 1 : 0;
+
+    int idx = indice_elemento(r, c);
+    if (idx >= 0) {
+        if (elementi[idx].tipo == EL_MOSTRO || elementi[idx].tipo == EL_OGGETTO)
+            return 1;
+    }
+
     return mappa_corrente[r][c] == ' ';
 }
 
