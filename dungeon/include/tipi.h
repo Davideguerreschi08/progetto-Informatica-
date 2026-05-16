@@ -1,25 +1,27 @@
-// Questo file viene incluso da più file (.c e .h) del progetto.
-// Senza protezione, le struct verrebbero definite più volte → errore.
-// Le include guard qui sotto risolvono il problema:
-#ifndef TIPI_H  // se TIPI_H non è ancora stato definito (prima inclusione)...
-#define TIPI_H  // ...definiscilo, così la prossima volta saltiamo tutto
+// tipi.h — definizioni condivise da tutti i moduli del progetto.
+// Usando le include guard evitiamo che il file venga incluso più volte
+// nello stesso file .c, il che causerebbe errori di "ridefinizione".
+#ifndef TIPI_H
+#define TIPI_H
 
-#include <stdbool.h>  // ci serve per usare il tipo bool (true/false)
+#include <stdbool.h>  // per il tipo bool (true/false)
 
 // ─── COSTANTI ─────────────────────────────────────────────────────────────────
 
-#define MAX_INVENTARIO  8    // massimo 8 oggetti nell'inventario
+#define MAX_INVENTARIO  8    // numero massimo di oggetti in inventario
 #define MAX_NOME        64   // lunghezza massima di un nome
 #define MAX_DESCRIZIONE 256  // lunghezza massima di una descrizione
-#define MAX_INPUT      128  // lunghezza massima input utente
+#define MAX_INPUT       128  // lunghezza massima dell'input utente
 
-// ─── ENUM ─────────────────────────────────────────────────────────────────────
-
-// typedef enum funziona come typedef struct:
-// senza typedef dovresti scrivere "enum TipoOggetto tipo" ogni volta,
-// con typedef puoi scrivere solo "TipoOggetto tipo".
-// Internamente ogni valore è un numero intero.
-// Usiamo i nomi invece dei numeri per rendere il codice leggibile.
+// ─── TIPO OGGETTO ─────────────────────────────────────────────────────────────
+// Ogni valore corrisponde internamente a un intero (POZIONE=0, ecc.).
+// Il campo "valore" in Oggetto cambia significato a seconda del tipo:
+//   POZIONE        → HP recuperati
+//   POZIONE_VELENO → danni inflitti al nemico (con componente casuale)
+//   CHIAVE         → apre porte bloccate
+//   BOMBA          → danni fissi inflitti al nemico
+//   AMULETO_FORZA  → bonus al danno per l'intero combattimento
+//   AMULETO_DIFESA → bonus alla difesa per l'intero combattimento
 typedef enum {
     POZIONE,
     POZIONE_VELENO,
@@ -29,7 +31,9 @@ typedef enum {
     AMULETO_DIFESA
 } TipoOggetto;
 
-// Stesso concetto, ma per i nemici.
+// ─── TIPO MOSTRO ──────────────────────────────────────────────────────────────
+// Identifica la categoria del nemico.
+// BOSS è speciale: sconfiggerlo termina la partita.
 typedef enum {
     SCHELETRO,
     GOBLIN,
@@ -41,43 +45,30 @@ typedef enum {
     LICH
 } TipoMostro;
 
-// I comandi che il giocatore può digitare.
-// Il parser legge la stringa, la confronta con le parole chiave
-// e restituisce uno di questi valori. CMD_SCONOSCIUTO viene
-// restituito quando il giocatore scrive qualcosa che non esiste.
+// ─── TIPO COMANDO ─────────────────────────────────────────────────────────────
+// Valori restituiti dal parser dopo aver letto l'input utente.
+// CMD_SCONOSCIUTO viene restituito per qualsiasi stringa non riconosciuta.
 typedef enum {
-    CMD_VAI,
-    CMD_PRENDI,
-    CMD_USA,
-    CMD_ATTACCA,
-    CMD_INVENTARIO,
-    CMD_SALVA,
-    CMD_CARICA,
+    CMD_VAI,        // movimento (W/A/S/D o "vai nord" ecc.)
+    CMD_USA,        // usa un oggetto dall'inventario
+    CMD_INVENTARIO, // mostra l'inventario
+    CMD_SALVA,      // salva la partita su file
+    CMD_CARICA,     // carica la partita da file
     CMD_SCONOSCIUTO
 } TipoComando;
 
 // ─── STRUCT OGGETTO ───────────────────────────────────────────────────────────
-
-// Rappresenta un singolo oggetto raccoglibile dal giocatore.
-// Il campo "valore" cambia significato in base al tipo:
-//   POZIONE        → quanti HP ripristina
-//   POZIONE_VELENO → quanti danni fa al nemico
-//   CHIAVE         → apertura di porte bloccate
-//   BOMBA          → quanti danni fa al nemico
-//   AMULETO_FORZA  → aumenta il danno in combattimento
-//   AMULETO_DIFESA → aumenta la difesa in combattimento
+// Rappresenta un oggetto raccoglibile o già in inventario.
+// "next" serve per liste collegate (non usato in inventario, ma in mappa).
 typedef struct Oggetto {
     char        nome[MAX_NOME];
     TipoOggetto tipo;
     int         valore;
-    struct Oggetto *next;   // lista collegata di oggetti
+    struct Oggetto *next;
 } Oggetto;
 
 // ─── STRUCT MOSTRO ────────────────────────────────────────────────────────────
-
-// Rappresenta un nemico sul dungeon.
-// xp_ricompensa e oro_ricompensa vengono aggiunti all'eroe
-// quando il mostro viene sconfitto.
+// Rappresenta un nemico posizionato sulla mappa.
 typedef struct Mostro {
     char       nome[MAX_NOME];
     TipoMostro tipo;
@@ -87,39 +78,34 @@ typedef struct Mostro {
     int        difesa;
     int        xp_ricompensa;
     int        oro_ricompensa;
-    int        vivo;
+    int        vivo;  // 1 = vivo, 0 = sconfitto
 } Mostro;
 
 // ─── PILA INVENTARIO ──────────────────────────────────────────────────────────
-
-// La pila è un array di puntatori a Oggetto con un indice "top".
-// top = -1 → pila vuota
-// top =  0 → un solo oggetto (in posizione 0)
-// top =  7 → pila piena (MAX_INVENTARIO - 1)
-// Push aggiunge in cima, pop toglie dalla cima.
-// Se la pila è piena, push non aggiunge niente e segnala errore.
+// Stack (LIFO) di puntatori a Oggetto.
+// top = -1 → vuota; top = MAX_INVENTARIO-1 → piena.
 typedef struct {
-    Oggetto *oggetti[MAX_INVENTARIO];  // array di puntatori agli oggetti
-    int      top;                      // indice della cima della pila
+    Oggetto *oggetti[MAX_INVENTARIO];
+    int      top;
 } Pila;
 
 // ─── STRUCT EROE ──────────────────────────────────────────────────────────────
-
-// Contiene tutto lo stato del giocatore.
-// La posizione dell'eroe viene memorizzata come coordinate sulla mappa.
+// Contiene l'intero stato del giocatore.
+// La posizione è memorizzata come coordinate (riga, colonna) sulla mappa ASCII.
+// bonus_danno è temporaneo: viene resettato all'inizio di ogni combattimento.
 typedef struct {
-    char   nome[MAX_NOME];
-    int    hp;
-    int    hp_max;
-    int    attacco;
-    int    difesa;
-    int    bonus_danno;
-    int    xp;
-    int    livello;
-    int    oro;
-    Pila   inventario;
-    int    pos_riga;   // posizione sulla mappa visiva
-    int    pos_col;
+    char nome[MAX_NOME];
+    int  hp;
+    int  hp_max;
+    int  attacco;     // danno base per colpo
+    int  difesa;      // riduzione danni ricevuti
+    int  bonus_danno; // bonus temporaneo da amuleti
+    int  xp;
+    int  livello;
+    int  oro;
+    Pila inventario;
+    int  pos_riga;    // coordinata riga sulla mappa
+    int  pos_col;     // coordinata colonna sulla mappa
 } Eroe;
 
-#endif  // fine include guard — tutto sopra viene incluso una volta sola
+#endif

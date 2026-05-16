@@ -1,97 +1,155 @@
-// movimento, inventario (pila), livelli
+// eroe.c — gestione inventario (pila), livelli, uso oggetti.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../include/eroe.h"
 
-#define NUM_LIVELLI 5 // livelli di tutto il gioco
+// Soglie di XP per passare al livello successivo.
+// livEXP[i] = XP necessari per raggiungere il livello i+1.
 const int livEXP[NUM_LIVELLI] = {0, 100, 200, 300, 400};
 
-// Crea un nuovo eroe
-// In crea_eroe, aggiungi la posizione iniziale sulla mappa visiva:
-Eroe* crea_eroe(const char* nome) {
-    Eroe* e = (Eroe*)malloc(sizeof(Eroe));
-    strcpy(e->nome, nome);
-    e->hp = 100;
-    e->hp_max = 100;
-    e->attacco = 10;
-    e->difesa = 5;
+// ─── CREAZIONE EROE ───────────────────────────────────────────────────────────
+
+// Alloca e inizializza un nuovo eroe con valori di partenza fissi.
+// La posizione di spawn (2,5) corrisponde alla cella iniziale sulla Mappa 1.
+Eroe *crea_eroe(const char *nome){
+    Eroe *e = malloc(sizeof(Eroe));
+    if (!e) return NULL;
+
+    strncpy(e->nome, nome, MAX_NOME - 1);
+    e->nome[MAX_NOME - 1] = '\0';
+
+    e->hp          = 100;
+    e->hp_max      = 100;
+    e->attacco     = 10;
+    e->difesa      = 5;
     e->bonus_danno = 0;
-    e->xp = 0;
-    e->livello = 1;
-    e->oro = 0;
-    e->inventario.top = -1;
-    e->pos_riga = 2;   // ← NUOVO: posizione di spawn sulla mappa
-    e->pos_col  = 5;   // ← NUOVO
+    e->xp          = 0;
+    e->livello     = 1;
+    e->oro         = 0;
+
+    e->inventario.top = -1;  // pila vuota
+
+    e->pos_riga = 2;   // spawn sulla mappa
+    e->pos_col  = 5;
+
     return e;
 }
 
-// usaOggetto con switch — ogni tipo fa la cosa giusta
-void usaOggetto(Eroe* e) {
+// ─── INVENTARIO (PILA) ────────────────────────────────────────────────────────
+
+// Aggiunge un oggetto in cima alla pila.
+// Se la pila è piena, stampa un avviso e non aggiunge.
+void push(Eroe *e, Oggetto *ogg){
+    if (e->inventario.top >= MAX_INVENTARIO - 1) {
+        printf("Inventario pieno! Non puoi raccogliere altri oggetti.\n");
+        return;
+    }
+    e->inventario.top++;
+    e->inventario.oggetti[e->inventario.top] = ogg;
+    printf("Hai raccolto: %s\n", ogg->nome);
+}
+
+// Rimuove e restituisce l'oggetto in cima alla pila.
+// Restituisce NULL se la pila è vuota.
+Oggetto *pop(Eroe *e){
+    if (e->inventario.top < 0) {
+        printf("Inventario vuoto!\n");
+        return NULL;
+    }
+    Oggetto *ogg = e->inventario.oggetti[e->inventario.top];
+    e->inventario.top--;
+    return ogg;
+}
+
+// Stampa tutti gli oggetti in inventario con il loro indice.
+void mostraInventario(Eroe *e){
+    printf("\n=== INVENTARIO ===\n");
+    if (e->inventario.top < 0) {
+        printf("Inventario vuoto.\n");
+        printf("==================\n\n");
+        return;
+    }
+    for (int i = 0; i <= e->inventario.top; i++) {
+        printf("[%d] %s (valore: %d)\n",
+               i,
+               e->inventario.oggetti[i]->nome,
+               e->inventario.oggetti[i]->valore);
+    }
+    printf("==================\n\n");
+}
+
+// ─── USO OGGETTI ──────────────────────────────────────────────────────────────
+
+// Chiede all'utente quale oggetto usare fuori dal combattimento.
+// Alcuni oggetti (amuleti, bombe, veleni) sono riservati al combattimento
+// e vengono rimessi in inventario se usati fuori.
+void usaOggetto(Eroe *e){
     if (e->inventario.top < 0) {
         printf("Inventario vuoto!\n");
         return;
     }
 
-    // Mostra inventario con indici
+    // Mostra gli oggetti disponibili
     printf("\n=== SCEGLI OGGETTO DA USARE ===\n");
     for (int i = 0; i <= e->inventario.top; i++) {
-        printf("[%d] %s (valore: %d)\n", i, 
-               e->inventario.oggetti[i]->nome, 
+        printf("[%d] %s (valore: %d)\n",
+               i,
+               e->inventario.oggetti[i]->nome,
                e->inventario.oggetti[i]->valore);
     }
-    printf("=================================\n");
+    printf("================================\n");
 
-    // Chiedi scelta
-    printf("Scegli l'oggetto da usare (0-%d): ", e->inventario.top);
-    int scelta;
-    if (scanf("%d", &scelta) != 1) {
+    printf("Scegli l'oggetto (0-%d): ", e->inventario.top);
+
+    // Leggiamo con fgets per non lasciare roba nel buffer
+    char buf[16];
+    if (!fgets(buf, sizeof(buf), stdin)) {
         printf("Input non valido.\n");
-        // Pulisci input buffer
-        while (getchar() != '\n');
         return;
     }
-
-    if (scelta < 0 || scelta > e->inventario.top) {
+    int scelta;
+    if (sscanf(buf, "%d", &scelta) != 1 ||
+        scelta < 0 || scelta > e->inventario.top) {
         printf("Scelta non valida.\n");
         return;
     }
 
-    // Rimuovi l'oggetto scelto dalla pila
-    Oggetto* ogg = e->inventario.oggetti[scelta];
-    
-    // Sposta tutti gli elementi successivi indietro di una posizione
-    for (int i = scelta; i < e->inventario.top; i++) {
+    // Rimuove l'oggetto scelto shiftando il resto verso il basso
+    Oggetto *ogg = e->inventario.oggetti[scelta];
+    for (int i = scelta; i < e->inventario.top; i++)
         e->inventario.oggetti[i] = e->inventario.oggetti[i + 1];
-    }
     e->inventario.top--;
 
     printf("Hai usato: %s\n", ogg->nome);
 
     switch (ogg->tipo) {
+
         case POZIONE:
-            // ripristina HP, senza superare il massimo
+            // Cura l'eroe; non può superare hp_max
             e->hp += ogg->valore;
             if (e->hp > e->hp_max) e->hp = e->hp_max;
             printf("Recuperi %d HP. HP: %d/%d\n", ogg->valore, e->hp, e->hp_max);
-            free(ogg);  // consumato, libera memoria
+            free(ogg);
             break;
 
         case AMULETO_FORZA:
         case AMULETO_DIFESA:
+            // Riservati al combattimento: effetto attivo solo durante lo scontro
             printf("Gli amuleti si usano solo durante un combattimento!\n");
             push(e, ogg);
             break;
 
         case BOMBA:
         case POZIONE_VELENO:
-            // questi si usano solo in combattimento — rimetti in inventario
+            // Riservati al combattimento
             printf("Puoi usarlo solo durante un combattimento!\n");
             push(e, ogg);
             break;
 
         case CHIAVE:
-            printf("È una chiave: avvicinati a una porta bloccata.\n");
+            // La chiave si usa avvicinandosi a una porta bloccata e premendo D/W/A/S
+            printf("E' una chiave: avvicinati a una porta bloccata.\n");
             push(e, ogg);
             break;
 
@@ -102,67 +160,22 @@ void usaOggetto(Eroe* e) {
     }
 }
 
-// PUSH (stack) - aggiunge oggetto in cima alla pila
-void push(Eroe* e, Oggetto* ogg) {
-    if (e->inventario.top >= MAX_INVENTARIO - 1) {
-        printf("Inventario pieno!\n");
-        return;
-    }
-    e->inventario.top++;
-    e->inventario.oggetti[e->inventario.top] = ogg;
-    printf("Hai raccolto: %s\n", ogg->nome);
-}
+// ─── PROGRESSIONE ─────────────────────────────────────────────────────────────
 
-// POP - toglie oggetto dalla cima della pila
-Oggetto* pop(Eroe* e) {
-    if (e->inventario.top < 0) {
-        printf("Inventario vuoto!\n");
-        return NULL;
-    }
-    Oggetto* ogg = e->inventario.oggetti[e->inventario.top];
-    e->inventario.top--;
-    return ogg;
-}
-
-// Stampa il contenuto dell'inventario
-void mostraInventario(Eroe* e) {
-    printf("\n=== INVENTARIO ===\n");
-    if (e->inventario.top < 0) {
-        printf("Inventario vuoto.\n");
-        return;
-    }
-    for (int i = 0; i <= e->inventario.top; i++) {
-        printf("[%d] %s (valore: %d)\n", i, 
-               e->inventario.oggetti[i]->nome, 
-               e->inventario.oggetti[i]->valore);
-    }
-    printf("==================\n\n");
-}
-
-// Aumento di livello e XP
-void aggiungiXP(Eroe* e, int xp) {
+// Aggiunge XP all'eroe e controlla se è avvenuto un level-up.
+// A ogni livello: +5 HP max, +3 bonus danno, HP ripristinati al massimo.
+void aggiungiXP(Eroe *e, int xp){
     e->xp += xp;
     printf("Hai guadagnato %d XP!\n", xp);
 
+    // Controlla tutti i livelli possibili (può salire più di uno)
     while (e->livello < NUM_LIVELLI - 1 && e->xp >= livEXP[e->livello]) {
         e->livello++;
-        e->hp_max += 5;
+        e->hp_max      += 5;
         e->bonus_danno += 3;
-        e->hp = e->hp_max;
+        e->hp           = e->hp_max;  // ripristino HP al level-up
         printf("** Hai raggiunto il livello %d! **\n", e->livello);
-        printf("** HP massimi +5 = %d, danno aggiuntivo +3 = %d **\n",
+        printf("   HP max +5 = %d  |  Danno bonus +3 = %d\n",
                e->hp_max, e->bonus_danno);
     }
-}
-
-// Stampa lo stato dell'eroe
-void stampa_stato(Eroe* e) {
-    printf("\n=== STATO EROE ===\n");
-    printf("Nome: %s\n", e->nome);
-    printf("HP: %d/%d\n", e->hp, e->hp_max);
-    printf("Livello: %d | XP: %d\n", e->livello, e->xp);
-    printf("Att. agg.: %d | Difesa: %d\n", e->bonus_danno, e->hp_max);
-    printf("Oro: %d\n", e->oro);
-    printf("Posizione: (%d, %d)\n", e->pos_riga, e->pos_col);
-    printf("==================\n\n");
 }
