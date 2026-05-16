@@ -17,6 +17,7 @@ typedef struct {
     int oro;
     int pos_riga;
     int pos_col;
+    int stanza;
 } Salvataggio;
 
 typedef struct {
@@ -60,6 +61,7 @@ int salva_partita(Eroe* eroe, const char* filename)
     s.oro         = eroe->oro;
     s.pos_riga    = eroe->pos_riga;
     s.pos_col     = eroe->pos_col;
+    s.stanza      = get_stanza_corrente();
     fwrite(&s, sizeof(s), 1, file);
 
     int count = eroe->inventario.top + 1;
@@ -114,6 +116,7 @@ int carica_partita(Eroe* eroe, const char* filename)
     eroe->oro         = s.oro;
     eroe->pos_riga    = s.pos_riga;
     eroe->pos_col     = s.pos_col;
+    set_stanza_corrente(s.stanza);
 
     libera_inventario(eroe);
     eroe->inventario.top = -1;

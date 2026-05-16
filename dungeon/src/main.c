@@ -157,6 +157,9 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
         if (e_calpestabile(nr, nc)) {
             eroe->pos_riga = nr;
             eroe->pos_col  = nc;
+            if (entra_porta(eroe)) {
+                break;
+            }
             controlla_oggetto(eroe);
             controlla_incontro(eroe, partita_vinta);
 
@@ -174,6 +177,7 @@ static void esegui_comando(TipoComando cmd, const char *argomento,
 
                     eroe->pos_riga = nr;
                     eroe->pos_col  = nc;
+                    if (entra_porta(eroe)) break;
                     controlla_oggetto(eroe);
                     controlla_incontro(eroe, partita_vinta);
                 } else {
