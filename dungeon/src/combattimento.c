@@ -188,7 +188,7 @@ static void mostro_sconfitto(Eroe *eroe, Mostro *mostro){
 // Chiamata quando l'eroe raggiunge 0 HP.
 static void eroe_sconfitto(Eroe *eroe){
     if (eroe->hp < 0) eroe->hp = 0;
-    printf("\n  *** %s e' caduto in battaglia. Game over. ***\n", eroe->nome);
+    printf("\n  *** %s e' caduto in battaglia. Game over (gioca meglio!). ***\n", eroe->nome);
 }
 
 // ─── API PUBBLICA ─────────────────────────────────────────────────────────────
