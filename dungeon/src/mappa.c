@@ -162,19 +162,25 @@ static int indice_porta_a(int r, int c){
 // perché e_calpestabile le gestisce separatamente.
 static void carica_elementi_mappa1(void){
     // Oggetti
-    aggiungi_elemento( 5, 50, 'P', EL_OGGETTO,nuovo_oggetto("Pozione di cura",     POZIONE,      20), NULL);
-    aggiungi_elemento(10, 26, 'K', EL_OGGETTO,nuovo_oggetto("Chiave arrugginita",  CHIAVE,        0), NULL);
+    aggiungi_elemento( 5, 50, 'P', EL_OGGETTO,nuovo_oggetto("Pozione di cura", POZIONE, 20), NULL);
+    aggiungi_elemento(10, 26, 'K', EL_OGGETTO,nuovo_oggetto("Chiave arrugginita", CHIAVE, 0), NULL);
     aggiungi_elemento( 2, 11, 'F', EL_OGGETTO,nuovo_oggetto("Amuleto della forza", AMULETO_FORZA, 1), NULL);
-    aggiungi_elemento(10,  3, 'B', EL_OGGETTO,nuovo_oggetto("Bomba",               BOMBA,        30), NULL);
-    aggiungi_elemento(12, 60, 'P', EL_OGGETTO,nuovo_oggetto("Pozione di cura",     POZIONE,      20), NULL);
+    aggiungi_elemento(10,  3, 'B', EL_OGGETTO,nuovo_oggetto("Bomba", BOMBA, 30), NULL);
+    aggiungi_elemento(15, 40, 'P', EL_OGGETTO,nuovo_oggetto("Pozione di cura", POZIONE, 20), NULL);
+    aggiungi_elemento(15, 38, 'B', EL_OGGETTO,nuovo_oggetto("Bomba", BOMBA, 30), NULL);
+    aggiungi_elemento(22, 11, 'D', EL_OGGETTO,nuovo_oggetto("Amuleto difesa", AMULETO_DIFESA, 1), NULL);
+    aggiungi_elemento( 5, 40, 'V', EL_OGGETTO,nuovo_oggetto("Pozione veleno", POZIONE_VELENO, 10), NULL);
+    aggiungi_elemento(10,  7, 'V', EL_OGGETTO,nuovo_oggetto("Pozione veleno", POZIONE_VELENO, 10), NULL);
 
     // Mostri
-    aggiungi_elemento( 6, 17, 'M', EL_MOSTRO, NULL,nuovo_mostro("Goblin",                  GOBLIN,         18,  6, 2,  20,  10));
-    aggiungi_elemento(10, 24, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro",               SCHELETRO,      25,  8, 3,  30,  15));
-    aggiungi_elemento( 2, 27, 'M', EL_MOSTRO, NULL, nuovo_mostro("Mago nero",               MAGO,           32, 10, 4,  40,  20));
-    aggiungi_elemento(14, 17, 'M', EL_MOSTRO, NULL,nuovo_mostro("Demone minore",           DEMONE,         40, 12, 5,  50,  25));
-    aggiungi_elemento(14, 54, 'M', EL_MOSTRO, NULL,nuovo_mostro("Drago scheletro",         DRAGO_SCHELETRO,50, 11, 5, 100,  80));
-    aggiungi_elemento(12, 58, 'M', EL_MOSTRO, NULL,nuovo_mostro("Drago nero occhi rossi",  DRAGO,          80, 14, 6, 150, 100));
+    aggiungi_elemento( 6, 17, 'M', EL_MOSTRO, NULL,nuovo_mostro("Goblin", GOBLIN, 15, 5, 3, 20, 10));
+    aggiungi_elemento(14, 17, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro", SCHELETRO, 20, 7, 4, 30, 13));
+    aggiungi_elemento( 2, 27, 'M', EL_MOSTRO, NULL, nuovo_mostro("Mago nero", MAGO, 33, 12, 6, 50, 25));
+    aggiungi_elemento(10, 24, 'M', EL_MOSTRO, NULL,nuovo_mostro("Demone minore", DEMONE, 38, 10, 5, 40, 22));
+    aggiungi_elemento(22, 35, 'M', EL_MOSTRO, NULL,nuovo_mostro("Drago scheletro", DRAGO_SCHELETRO, 55, 17, 9, 85, 53));
+    aggiungi_elemento(12, 58, 'M', EL_MOSTRO, NULL,nuovo_mostro("Drago nero occhi rossi", DRAGO, 80, 19, 11, 130, 90));
+    aggiungi_elemento( 9, 54, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro", SCHELETRO, 20, 7, 4, 30, 13));
+    aggiungi_elemento(15, 54, 'M', EL_MOSTRO, NULL,nuovo_mostro("Goblin", GOBLIN, 15, 5, 3, 20, 10));
 
     // Porta (blocca il passaggio finché non aperta con chiave)
     aggiungi_elemento(12, 61, '[', EL_PORTA, NULL, NULL);
@@ -199,24 +205,24 @@ static void carica_elementi_mappa2(void)
     }
 
     // Oggetti
-    aggiungi_elemento( 6, 26, 'D', EL_OGGETTO,nuovo_oggetto("Amuleto difesa",      AMULETO_DIFESA, 1), NULL);
-    aggiungi_elemento( 6, 35, 'F', EL_OGGETTO,nuovo_oggetto("Amuleto della forza", AMULETO_FORZA,  1), NULL);
-    aggiungi_elemento( 8, 26, 'P', EL_OGGETTO,nuovo_oggetto("Pozione",             POZIONE,       20), NULL);
-    aggiungi_elemento( 8, 35, 'V', EL_OGGETTO,nuovo_oggetto("Pozione veleno",      POZIONE_VELENO,10), NULL);
-    aggiungi_elemento(16, 26, 'P', EL_OGGETTO,nuovo_oggetto("Pozione",             POZIONE,       20), NULL);
-    aggiungi_elemento(16, 35, 'V', EL_OGGETTO,nuovo_oggetto("Pozione veleno",      POZIONE_VELENO,10), NULL);
-    aggiungi_elemento(18, 26, 'B', EL_OGGETTO,nuovo_oggetto("Bomba",               BOMBA,         30), NULL);
-    aggiungi_elemento(18, 35, 'B', EL_OGGETTO,nuovo_oggetto("Bomba",               BOMBA,         30), NULL);
+    aggiungi_elemento( 6, 26, 'D', EL_OGGETTO,nuovo_oggetto("Amuleto difesa", AMULETO_DIFESA, 1), NULL);
+    aggiungi_elemento( 6, 35, 'F', EL_OGGETTO,nuovo_oggetto("Amuleto della forza", AMULETO_FORZA, 1), NULL);
+    aggiungi_elemento( 8, 26, 'P', EL_OGGETTO,nuovo_oggetto("Pozione", POZIONE, 20), NULL);
+    aggiungi_elemento( 8, 35, 'V', EL_OGGETTO,nuovo_oggetto("Pozione veleno", POZIONE_VELENO, 10), NULL);
+    aggiungi_elemento(16, 26, 'P', EL_OGGETTO,nuovo_oggetto("Pozione", POZIONE, 20), NULL);
+    aggiungi_elemento(16, 35, 'V', EL_OGGETTO,nuovo_oggetto("Pozione veleno", POZIONE_VELENO,10), NULL);
+    aggiungi_elemento(18, 26, 'B', EL_OGGETTO,nuovo_oggetto("Bomba", BOMBA, 30), NULL);
+    aggiungi_elemento(18, 35, 'B', EL_OGGETTO,nuovo_oggetto("Bomba", BOMBA, 30), NULL);
 
     // Mostri
-    aggiungi_elemento(11, 26, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro errante",    SCHELETRO, 22,  7, 3,  25,  12));
-    aggiungi_elemento(11, 35, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro errante",    SCHELETRO, 22,  7, 3,  25,  12));
-    aggiungi_elemento(12, 40, 'M', EL_MOSTRO, NULL,nuovo_mostro("Cavaliere dimenticato",BOSS,     160, 16,10, 300, 180));
-    aggiungi_elemento(13, 26, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro errante",    SCHELETRO, 22,  7, 3,  25,  12));
-    aggiungi_elemento(13, 35, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro errante",    SCHELETRO, 22,  7, 3,  25,  12));
+    aggiungi_elemento(11, 26, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro errante", SCHELETRO, 22, 8, 4, 29, 14));
+    aggiungi_elemento(11, 35, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro errante", SCHELETRO, 22, 8, 4, 29, 14));
+    aggiungi_elemento(12, 40, '@', EL_MOSTRO, NULL,nuovo_mostro("Cavaliere dimenticato", BOSS, 160, 26, 14, 300, 180));
+    aggiungi_elemento(13, 26, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro errante", SCHELETRO, 22, 8, 4, 29, 14));
+    aggiungi_elemento(13, 35, 'M', EL_MOSTRO, NULL,nuovo_mostro("Scheletro errante", SCHELETRO, 22, 8, 4, 29, 14));
 
     // Porta di ritorno alla mappa precedente
-    aggiungi_elemento(12,  0, '[', EL_PORTA, NULL, NULL);
+    aggiungi_elemento(12, 0, '[', EL_PORTA, NULL, NULL);
 
     // Azzera le celle occupate nella mappa ASCII
     for (int i = 0; i < elementi_count; i++) {
@@ -563,22 +569,22 @@ void stampa_mappa(Eroe *eroe){
     // Stampa riga per riga con il pannello laterale affiancato
     printf("\n");
     printf("%-62s  STATO EROE\n", "=== MAPPA DEL DUNGEON ===");
-    printf("%-62s  +--------------------+\n", "");
+    printf("%-62s  +---------------------+\n", "");
 
     for (int r = 0; r < MAPPA_RIGHE_T; r++) {
         printf("%s", buf[r]);
 
         if (eroe) {
             switch (r) {
-                case 1:  printf("  | Nome: %-14s |", eroe->nome); break;
-                case 2:  printf("  | HP:   %3d/%-3d      |", eroe->hp, eroe->hp_max); break;
-                case 3:  printf("  | Livello:  %-5d    |", eroe->livello); break;
-                case 4:  printf("  | XP:  %-9d    |", eroe->xp); break;
-                case 5:  printf("  | Attacco:  %-5d    |", eroe->attacco + eroe->bonus_danno); break;
-                case 6:  printf("  | Difesa:   %-5d    |", eroe->difesa); break;
-                case 7:  printf("  | Oro:  %-9d    |", eroe->oro); break;
+                case 1:  printf("  | Nome: %-14s|", eroe->nome); break;
+                case 2:  printf("  | HP:   %3d/%-3d       |", eroe->hp, eroe->hp_max); break;
+                case 3:  printf("  | Livello:  %-5d     |", eroe->livello); break;
+                case 4:  printf("  | XP:  %-9d      |", eroe->xp); break;
+                case 5:  printf("  | Attacco:  %-5d     |", eroe->attacco + eroe->bonus_danno); break;
+                case 6:  printf("  | Difesa:   %-5d     |", eroe->difesa); break;
+                case 7:  printf("  | Oro:  %-9d     |", eroe->oro); break;
                 case 8:  printf("  | Inv:  %2d/%2d oggetti |",eroe->inventario.top + 1, MAX_INVENTARIO); break;
-                case 9:  printf("  +--------------------+"); break;
+                case 9:  printf("  +---------------------+"); break;
                 case 10: printf("  LEGENDA:"); break;
                 case 11: printf("  & = Tu (giocatore)"); break;
                 case 12: printf("  M = Mostro"); break;
@@ -589,6 +595,7 @@ void stampa_mappa(Eroe *eroe){
                 case 17: printf("  F = Amuleto forza"); break;
                 case 18: printf("  D = Amuleto difesa"); break;
                 case 19: printf("  [ = Porta bloccata"); break;
+                case 20: printf("  @ = BOSS finale"); break;
                 default: break;
             }
         }
