@@ -595,7 +595,6 @@ void stampa_mappa(Eroe *eroe){
                 case 17: printf("  F = Amuleto forza"); break;
                 case 18: printf("  D = Amuleto difesa"); break;
                 case 19: printf("  [ = Porta bloccata"); break;
-                case 20: printf("  @ = BOSS finale"); break;
                 default: break;
             }
         }
