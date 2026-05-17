@@ -102,7 +102,7 @@ int main(void){
     }
 
     if (partita_vinta)
-        printf("\n*** HAI VINTO! Il dungeon e' liberato, %s! ***\n", eroe->nome);
+        printf("\n*** HAI VINTO! ti ringraziamo per aver completato la beta, %s! ***\n", eroe->nome);
     else
         printf("\nPartita terminata. Alla prossima, %s!\n", eroe->nome);
 
