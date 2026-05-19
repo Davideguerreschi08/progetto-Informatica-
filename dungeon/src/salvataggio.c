@@ -82,9 +82,9 @@ int salva_partita(Eroe *eroe, const char *filename){
     fwrite(&s, sizeof(s), 1, file);
 
     // 2. Inventario: prima il conteggio, poi gli oggetti uno a uno
-    int count = eroe->inventario.top + 1;
-    fwrite(&count, sizeof(count), 1, file);
-    for (int i = 0; i < count; i++) {
+    int cnt = eroe->inventario.top + 1;
+    fwrite(&cnt, sizeof(cnt), 1, file);
+    for (int i = 0; i < cnt; i++) {
         OggettoSalvato os;
         strncpy(os.nome, eroe->inventario.oggetti[i]->nome, MAX_NOME - 1);
         os.nome[MAX_NOME - 1] = '\0';
@@ -147,9 +147,9 @@ int carica_partita(Eroe *eroe, const char *filename){
     libera_inventario(eroe);
     eroe->inventario.top = -1;
 
-    int count = 0;
-    if (fread(&count, sizeof(count), 1, file) == 1) {
-        for (int i = 0; i < count; i++) {
+    int cnt = 0;
+    if (fread(&cnt, sizeof(cnt), 1, file) == 1) {
+        for (int i = 0; i < cnt; i++) {
             OggettoSalvato os;
             if (fread(&os, sizeof(os), 1, file) != 1) {
                 fclose(file);

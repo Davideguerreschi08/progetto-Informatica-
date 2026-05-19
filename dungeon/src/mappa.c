@@ -78,7 +78,7 @@ static void riempi_mappa_vuota(void){
 // Azzera tutti gli array degli elementi e le loro strutture dati.
 static void reset_elementi(void){
     elementi_count = 0;
-    memset(porta_aperta,  0, sizeof porta_aperta);
+    memset(porta_aperta,  0, sizeof porta_aperta);//memset è una funzione C che serve a inizializzare un blocco di memoria con un valore costante.
     memset(oggetti_mappa, 0, sizeof oggetti_mappa);
     memset(mostri_mappa,  0, sizeof mostri_mappa);
 }

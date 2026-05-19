@@ -191,7 +191,6 @@ static void eroe_sconfitto(Eroe *eroe){
     printf("\n  *** %s e' caduto in battaglia. Game over (gioca meglio!). ***\n", eroe->nome);
 }
 
-// ─── API PUBBLICA ─────────────────────────────────────────────────────────────
 
 // Restituisce 1 se il boss è stato sconfitto dall'inizio della sessione.
 int boss_sconfitto(void){
