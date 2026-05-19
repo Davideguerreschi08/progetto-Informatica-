@@ -176,11 +176,10 @@ void aggiungiXP(Eroe *e, int xp){
     // Controlla tutti i livelli possibili (può salire più di uno)
     while (e->livello < NUM_LIVELLI - 1 && e->xp >= livEXP[e->livello]) {
         e->livello++;
-        e->hp_max      += 5;
+        e->hp_max  += 5;
         e->bonus_danno += 3;
-        e->hp           = e->hp_max;  // ripristino HP al level-up
+        e->hp = e->hp_max;  // ripristino HP al level-up
         printf("** Hai raggiunto il livello %d! **\n", e->livello);
-        printf("   HP max +5 = %d  |  Danno bonus +3 = %d\n",
-               e->hp_max, e->bonus_danno);
+        printf("   HP max +5 = %d  |  Danno bonus +3 = %d\n",e->hp_max, e->bonus_danno);
     }
 }
