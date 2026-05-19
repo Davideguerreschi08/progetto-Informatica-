@@ -1,8 +1,8 @@
-// salvataggio.c — serializzazione e deserializzazione dello stato di gioco.
+// salvataggio.c — salva lo stato di gioco.
 // Formato del file binario:
 //   1. Struct Salvataggio (dati dell'eroe + stanza corrente)
-//   2. int count (numero oggetti in inventario)
-//   3. count * OggettoSalvato (oggetti dell'inventario)
+//   2. int cnt (numero oggetti in inventario)
+//   3. cnt * OggettoSalvato (oggetti dell'inventario)
 //   4. Stato della mappa (mostri vivi/morti, oggetti presenti, porte aperte)
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,8 +11,9 @@
 #include "../include/eroe.h"
 #include "../include/mappa.h"
 
-// ─── STRUCT AUSILIARIE ────────────────────────────────────────────────────────
-
+//la struct Eroe originale probabilmente contiene dei 
+// puntatori in memoria . I puntatori non possono 
+// essere salvati su file perché cambiano a ogni avvio del gioco;
 // Dati dell'eroe che vengono serializzati su file.
 typedef struct {
     char nome[MAX_NOME];
@@ -29,14 +30,13 @@ typedef struct {
     int  stanza;      // numero della stanza corrente
 } Salvataggio;
 
-// Dati di un singolo oggetto dell'inventario serializzati su file.
+// Dati di un singolo oggetto dell'inventario salvati  sul file.
 typedef struct {
     char        nome[MAX_NOME];
     TipoOggetto tipo;
     int         valore;
 } OggettoSalvato;
 
-// ─── HELPER ───────────────────────────────────────────────────────────────────
 
 // Svuota e libera tutto l'inventario dell'eroe prima di sovrascriverlo.
 static void libera_inventario(Eroe *eroe){
@@ -87,7 +87,8 @@ int salva_partita(Eroe *eroe, const char *filename){
     for (int i = 0; i < cnt; i++) {
         OggettoSalvato os;
         strncpy(os.nome, eroe->inventario.oggetti[i]->nome, MAX_NOME - 1);
-        os.nome[MAX_NOME - 1] = '\0';
+        os.nome[MAX_NOME - 1] = '\0';//strncpyCopia il testo da eroe->nome dentro s.nome,
+        //  ma si ferma dopo aver copiato al massimo MAX_NOME - 1 caratteri
         os.tipo   = eroe->inventario.oggetti[i]->tipo;
         os.valore = eroe->inventario.oggetti[i]->valore;
         fwrite(&os, sizeof(os), 1, file);
@@ -109,14 +110,14 @@ int salva_partita(Eroe *eroe, const char *filename){
 // Carica lo stato della partita dal file "save/<filename>".
 // Restituisce 0 in caso di successo, -1 in caso di errore.
 int carica_partita(Eroe *eroe, const char *filename){
-    if (!eroe || !filename || filename[0] == '\0') return -1;
+    if (!eroe || !filename || filename[0] == '\0') return -1;//controlla se il puntatore è null o se il nome del file è vuoto, 
 
     char filepath[512];
-    snprintf(filepath, sizeof(filepath), "save/%s", filename);
+    snprintf(filepath, sizeof(filepath), "save/%s", filename);//par aggiungere alla stringa "save/"  
 
     FILE *file = fopen(filepath, "rb");
     if (!file) {
-        perror("fopen (caricamento)");
+        perror("fopen (caricamento)");//stampa errore se l'apertura fallisce
         return -1;
     }
 

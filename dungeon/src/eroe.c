@@ -16,7 +16,7 @@ Eroe *crea_eroe(const char *nome){
     Eroe *e = malloc(sizeof(Eroe));
     if (!e) return NULL;
 
-    strncpy(e->nome, nome, MAX_NOME - 1);
+    strncpy(e->nome, nome, MAX_NOME - 1);//strncpy per non sforare
     e->nome[MAX_NOME - 1] = '\0';
 
     e->hp          = 100;
@@ -102,15 +102,13 @@ void usaOggetto(Eroe *e){
 
     printf("Scegli l'oggetto (0-%d): ", e->inventario.top);
 
-    // Leggiamo con fgets per non lasciare roba nel buffer
     char buf[16];
     if (!fgets(buf, sizeof(buf), stdin)) {
         printf("Input non valido.\n");
         return;
     }
     int scelta;
-    if (sscanf(buf, "%d", &scelta) != 1 ||
-        scelta < 0 || scelta > e->inventario.top) {
+    if (sscanf(buf, "%d", &scelta) != 1 ||scelta < 0 || scelta > e->inventario.top) {
         printf("Scelta non valida.\n");
         return;
     }
@@ -133,14 +131,21 @@ void usaOggetto(Eroe *e){
             free(ogg);
             break;
 
-        case AMULETO_FORZA:
+        case AMULETO_FORZA:// Riservati al combattimento: effetto attivo solo durante lo scontro
+            printf("Gli amuleti si usano solo durante un combattimento!\n");
+            push(e, ogg);
+            break;
         case AMULETO_DIFESA:
             // Riservati al combattimento: effetto attivo solo durante lo scontro
             printf("Gli amuleti si usano solo durante un combattimento!\n");
             push(e, ogg);
             break;
 
-        case BOMBA:
+        case BOMBA: 
+            // Riservate al combattimento: effetto attivo solo durante lo scontro
+            printf("Le bombe si usano solo durante un combattimento!\n");
+            push(e, ogg);
+            break;
         case POZIONE_VELENO:
             // Riservati al combattimento
             printf("Puoi usarlo solo durante un combattimento!\n");

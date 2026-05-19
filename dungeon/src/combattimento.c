@@ -15,11 +15,11 @@ static int boss_vinto = 0;
 
 // ─── STAMPA BARRA HP ──────────────────────────────────────────────────────────
 
-// Disegna una barra stile [###   ] N/MAX di larghezza fissa.
+// Disegna una barra stile [##########          ] 50/100
 static void stampa_barra_hp(int hp, int hp_max, int larghezza){
-    if (hp_max <= 0) hp_max = 1;
+    if (hp_max <= 0) hp_max = 1;//la divisione per zero se hp_max è stranamente 0
 
-    // Quante celle sono "piene"
+    // Quante celle sono #
     int pieni = (hp * larghezza) / hp_max;
     if (pieni < 0) pieni = 0;
     if (pieni > larghezza) pieni = larghezza;
@@ -85,10 +85,7 @@ static int usa_oggetto_in_combat(Eroe *eroe, Mostro *mostro){
     // Mostra gli oggetti disponibili
     printf("  === SCEGLI OGGETTO ===\n");
     for (int i = 0; i <= eroe->inventario.top; i++) {
-        printf("  [%d] %s (valore: %d)\n",
-               i,
-               eroe->inventario.oggetti[i]->nome,
-               eroe->inventario.oggetti[i]->valore);
+        printf("  [%d] %s (valore: %d)\n",i,eroe->inventario.oggetti[i]->nome,eroe->inventario.oggetti[i]->valore);
     }
     printf("  =====================\n");
     printf("  Scegli (0-%d): ", eroe->inventario.top);
@@ -101,8 +98,8 @@ static int usa_oggetto_in_combat(Eroe *eroe, Mostro *mostro){
         return 0;
     }
     int scelta;
-    if (sscanf(scelta_buf, "%d", &scelta) != 1 ||
-        scelta < 0 || scelta > eroe->inventario.top) {
+    if (sscanf(scelta_buf, "%d", &scelta) != 1 ||scelta < 0 || scelta > eroe->inventario.top) {
+        //sscanf scrive i dati formattati da scelta_buf a scelta
         printf("  Scelta non valida.\n");
         return 0;
     }
@@ -144,16 +141,14 @@ static int usa_oggetto_in_combat(Eroe *eroe, Mostro *mostro){
         case AMULETO_FORZA:
             // Aumenta il bonus danno per il resto di questo combattimento
             eroe->bonus_danno += 6 * ogg->valore;
-            printf("  Amuleto della forza (lv %d): danno +%d!\n",
-                   ogg->valore, 6 * ogg->valore);
+            printf("  Amuleto della forza (lv %d): danno +%d!\n",ogg->valore, 6 * ogg->valore);
             free(ogg);
             break;
 
         case AMULETO_DIFESA:
             // Aumenta la difesa per il resto di questo combattimento
             eroe->difesa += 4 * ogg->valore;
-            printf("  Amuleto della difesa (lv %d): difesa +%d!\n",
-                   ogg->valore, 4 * ogg->valore);
+            printf("  Amuleto della difesa (lv %d): difesa +%d!\n",ogg->valore, 4 * ogg->valore);
             free(ogg);
             break;
 
@@ -174,8 +169,7 @@ static void mostro_sconfitto(Eroe *eroe, Mostro *mostro){
     if (mostro->hp < 0) mostro->hp = 0;
 
     printf("\n  *** %s e' stato sconfitto! ***\n", mostro->nome);
-    printf("  Guadagni %d XP e %d oro!\n",
-           mostro->xp_ricompensa, mostro->oro_ricompensa);
+    printf("  Guadagni %d XP e %d oro!\n",mostro->xp_ricompensa, mostro->oro_ricompensa);
 
     aggiungiXP(eroe, mostro->xp_ricompensa);
     eroe->oro += mostro->oro_ricompensa;
@@ -200,8 +194,7 @@ int boss_sconfitto(void){
 // Avvia e gestisce un combattimento a turni tra eroe e mostro.
 // Il combattimento termina quando uno dei due raggiunge 0 HP o l'eroe fugge.
 void inizia_combattimento(Eroe *eroe, Mostro *mostro){
-    if (!eroe || !mostro || !mostro->vivo) {
-        printf("Non c'e' nessun avversario valido qui.\n");
+    if (!eroe || !mostro || !mostro->vivo) {//controlla se i puntatori sono null o se il mostro è già sconfitto,
         return;
     }
 

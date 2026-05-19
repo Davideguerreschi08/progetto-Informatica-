@@ -1,4 +1,4 @@
-// tipi.h — definizioni condivise da tutti i moduli del progetto.
+// tipi.h — definizioni condivise da tutti i file del progetto.
 // Usando le include guard evitiamo che il file venga incluso più volte
 // nello stesso file .c, il che causerebbe errori di "ridefinizione".
 #ifndef TIPI_H
@@ -81,7 +81,6 @@ typedef struct Mostro {
     int        vivo;  // 1 = vivo, 0 = sconfitto
 } Mostro;
 
-// ─── PILA INVENTARIO ──────────────────────────────────────────────────────────
 // Stack (LIFO) di puntatori a Oggetto.
 // top = -1 → vuota; top = MAX_INVENTARIO-1 → piena.
 typedef struct {
