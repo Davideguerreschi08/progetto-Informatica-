@@ -17,7 +17,7 @@ Eroe *crea_eroe(const char *nome){
     if (!e) return NULL;
 
     strncpy(e->nome, nome, MAX_NOME - 1);//strncpy per non sforare
-    e->nome[MAX_NOME - 1] = '\0';
+    e->nome[MAX_NOME - 1] = '\0'; 
 
     e->hp          = 100;
     e->hp_max      = 100;
