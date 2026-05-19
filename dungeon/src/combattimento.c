@@ -187,7 +187,7 @@ static void eroe_sconfitto(Eroe *eroe){
 
 
 // Restituisce 1 se il boss è stato sconfitto dall'inizio della sessione.
-int boss_sconfitto(void){
+int boss_sconfitto(){
     return boss_vinto;
 }
 

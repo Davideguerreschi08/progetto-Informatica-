@@ -5,8 +5,8 @@
 #include "tipi.h"
 #include "eroe.h"
 
-void costruisci_mappa(void);
-void distruggi_mappa(void);
+void costruisci_mappa();
+void distruggi_mappa();
 void stampa_mappa(Eroe *eroe);
 int e_calpestabile(int r, int c);
 int porta_chiusa_in(int r, int c);
@@ -18,7 +18,7 @@ void aggiungi_oggetto_in_posizione(int r, int c, Oggetto *oggetto);
 int salva_stato_mappa(FILE *file);
 int carica_stato_mappa(FILE *file);
 
-int get_stanza_corrente(void);
+int get_stanza_corrente();
 void set_stanza_corrente(int stanza);
 
 /* Cambio stanza: ricostruisce la mappa e posiziona l'eroe sullo spawn */

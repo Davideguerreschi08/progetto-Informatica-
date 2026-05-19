@@ -8,7 +8,7 @@
  
 // Numero di livelli disponibili e soglie XP (definiti in eroe.c)
 #define NUM_LIVELLI 5
-extern const int livEXP[];//extern perché definito in eroe.c per indicare che è definito in eroe.c
+extern const int livEXP[];//extern perché definito in eroe.c 
  
 // Inventario (pila LIFO)
 void    push(Eroe *e, Oggetto *ogg);  // aggiunge in cima

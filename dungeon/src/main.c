@@ -49,7 +49,7 @@ static void controlla_oggetto(Eroe *eroe){
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 
-int main(void){
+int main(){
     srand((unsigned int)time(NULL));
 
     // Chiede il nome all'utente prima di iniziare

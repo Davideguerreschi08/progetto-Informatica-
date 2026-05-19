@@ -52,7 +52,7 @@ static void     libera_oggetto(Oggetto *o);
 // ─── HELPERS INTERNI ──────────────────────────────────────────────────────────
 
 // Genera una mappa vuota con solo il bordo (usata come fallback se il file manca).
-static void riempi_mappa_vuota(void){
+static void riempi_mappa_vuota(){
     for (int r = 0; r < MAPPA_RIGHE_T; r++) {
         for (int c = 0; c < MAPPA_COLONNE_T; c++) {
             // Prima e ultima riga → bordo orizzontale
@@ -76,7 +76,7 @@ static void riempi_mappa_vuota(void){
 }
 
 // Azzera tutti gli array degli elementi e le loro strutture dati.
-static void reset_elementi(void){
+static void reset_elementi(){
     elementi_count = 0;
     memset(porta_aperta,  0, sizeof porta_aperta);//memset è una funzione C che serve a inizializzare un blocco di memoria con un valore costante.
     memset(oggetti_mappa, 0, sizeof oggetti_mappa);
@@ -160,7 +160,7 @@ static int indice_porta_a(int r, int c){
 // Carica gli elementi (mostri, oggetti, porte) della Mappa 1.
 // Le celle occupate da elementi vengono azzerate nella mappa ASCII
 // perché e_calpestabile le gestisce separatamente.
-static void carica_elementi_mappa1(void){
+static void carica_elementi_mappa1(){
     // Oggetti
     aggiungi_elemento( 5, 50, 'P', EL_OGGETTO,nuovo_oggetto("Pozione di cura", POZIONE, 20), NULL);
     aggiungi_elemento(10, 26, 'K', EL_OGGETTO,nuovo_oggetto("Chiave arrugginita", CHIAVE, 0), NULL);
@@ -196,7 +196,7 @@ static void carica_elementi_mappa1(void){
 }
 
 // Carica gli elementi della Mappa 2 (stanza del boss).
-static void carica_elementi_mappa2(void)
+static void carica_elementi_mappa2()
 {
     // Se il file della mappa non esiste, usa la mappa vuota come fallback
     if (carica_mappa_da_testo(2) != 0) {
@@ -238,7 +238,7 @@ static void carica_elementi_mappa2(void)
 }
 
 // Carica la mappa e i suoi elementi in base alla stanza corrente.
-static void inizializza_elementi_mappa(void){
+static void inizializza_elementi_mappa(){
     reset_elementi();
 
     if (stanza_corrente == 1) {
@@ -258,12 +258,12 @@ static void inizializza_elementi_mappa(void){
 // ─── API PUBBLICA ─────────────────────────────────────────────────────────────
 
 // Costruisce la mappa della stanza corrente (chiamata all'avvio e dopo cambia_stanza).
-void costruisci_mappa(void){
+void costruisci_mappa(){
     inizializza_elementi_mappa();
 }
 
 // Libera tutta la memoria degli elementi della mappa corrente.
-void distruggi_mappa(void){
+void distruggi_mappa(){
     for (int i = 0; i < MAX_ELEMENTI_MAPPA; i++) {
         libera_oggetto(oggetti_mappa[i]);
         oggetti_mappa[i] = NULL;
@@ -276,7 +276,7 @@ void distruggi_mappa(void){
 }
 
 // Restituisce il numero della stanza attualmente caricata.
-int get_stanza_corrente(void){
+int get_stanza_corrente(){
     return stanza_corrente;
 }
 
@@ -513,7 +513,7 @@ int carica_stato_mappa(FILE *file){
 // ─── STAMPA MAPPA ─────────────────────────────────────────────────────────────
 
 // Pannello comandi mostrato sopra la mappa ad ogni turno.
-static void stampa_comandi(void){
+static void stampa_comandi(){
     printf("\n");
     printf("╔════════════════════════════════════════════════════════╗\n");
     printf("║                  COMANDI DISPONIBILI                   ║\n");
