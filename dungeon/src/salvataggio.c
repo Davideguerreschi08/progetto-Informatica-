@@ -14,7 +14,7 @@
 //la struct Eroe originale probabilmente contiene dei 
 // puntatori in memoria . I puntatori non possono 
 // essere salvati su file perché cambiano a ogni avvio del gioco;
-// Dati dell'eroe che vengono serializzati su file.
+// Dati dell'eroe che vengono salvati su file.
 typedef struct {
     char nome[MAX_NOME];
     int  hp;
