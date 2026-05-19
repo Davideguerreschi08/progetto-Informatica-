@@ -33,7 +33,7 @@ typedef enum {
 
 // ─── TIPO MOSTRO ──────────────────────────────────────────────────────────────
 // Identifica la categoria del nemico.
-// BOSS è speciale: sconfiggerlo termina la partita.
+
 typedef enum {
     SCHELETRO,
     GOBLIN,
